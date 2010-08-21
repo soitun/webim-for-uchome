@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Fri Aug 20 16:02:20 2010 +0800
- * Commit: 3576eb63a8c4f1af9fbab5c884632e1df3fd44f3
+ * Date: Sat Aug 21 20:03:19 2010 +0800
+ * Commit: 8fd80daf892b99bb18815d29c95e941ede8d6248
  */
 (function(window, document, undefined){
 
@@ -1007,14 +1007,19 @@ extend(webim.prototype, objectExtend,{
 	_go: function(){
 		var self = this, data = self.data, history = self.history, buddy = self.buddy, room = self.room;
 		history.option("userInfo", data.user);
-		buddy.handle(data.buddies);
+		var ids = [], buddies = [];
 		each(data.buddies, function(n, v){
+			if(v.need_reload){
+				ids.push(v.id);
+			}else{
+				buddies.push(v);
+			}
 			history.init("unicast", v.id, v.history);
 		});
-		//buddy load delay
-		buddy.online(data.online_buddy_ids);
+		buddy.online(ids);
+		buddy.handle(data.buddies);
 		//rooms
-		each(data.buddies, function(n, v){
+		each(data.rooms, function(n, v){
 			history.init("multicast", v.id, v.history);
 		});
 		//blocked rooms
@@ -1794,8 +1799,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Fri Aug 20 19:04:14 2010 +0800
- * Commit: 79021178d7fa1d51b1da82e281fba0a335d3b652
+ * Date: Sat Aug 21 15:35:07 2010 +0800
+ * Commit: afb263d7d16902e9cf0c7449b82d546cd8a702ac
  */
 (function(window,document,undefined){
 
