@@ -100,105 +100,105 @@ function install_config($config, $file, $product_file){
 		$logs[] = array(true, "检查加载", $product_file);
 	}
 	return $logs;
-	}
+}
 
-	function install_template($templates, $file){
-		$logs = array();
-		$markup = file_get_contents($file);
-		foreach($templates as $k => $v) {
-			$tmp = $v.DIRECTORY_SEPARATOR.basename($file);
-			$logs[] = array(true, (file_exists($tmp) ? "更新" : "写入")."模版", $tmp);
-			file_put_contents($tmp, $markup);
-			$inc = $v.DIRECTORY_SEPARATOR.'footer.htm';
-			$name = basename($file, ".htm");
-			$html = file_get_contents($inc);
-			$html = preg_replace('/<\!--\{template\swebim[^>]+>/i', "", $html);
-			list($html, $foot) = explode("</body>", $html);
-			$logs[] = array(true, "加载模版", $inc);
-			$inc_markup = "<!--{template ".$name."}-->";
-			$html .= $inc_markup."</body>".$foot;
-			file_put_contents($inc, $html);
-		}
-		return $logs;
+function install_template($templates, $file){
+	$logs = array();
+	$markup = file_get_contents($file);
+	foreach($templates as $k => $v) {
+		$tmp = $v.DIRECTORY_SEPARATOR.basename($file);
+		$logs[] = array(true, (file_exists($tmp) ? "更新" : "写入")."模版", $tmp);
+		file_put_contents($tmp, $markup);
+		$inc = $v.DIRECTORY_SEPARATOR.'footer.htm';
+		$name = basename($file, ".htm");
+		$html = file_get_contents($inc);
+		$html = preg_replace('/<\!--\{template\swebim[^>]+>/i', "", $html);
+		list($html, $foot) = explode("</body>", $html);
+		$logs[] = array(true, "加载模版", $inc);
+		$inc_markup = "<!--{template ".$name."}-->";
+		$html .= $inc_markup."</body>".$foot;
+		file_put_contents($inc, $html);
 	}
+	return $logs;
+}
 
-	function input_config($config){
-		$q = stdin("输入im服务器地址 (".$config['imsvr']."): ");
-		if(!empty($q)){
-			$config['apikey'] = $q;
-		}
-		$q = stdin("输入注册域名 (".$config['domain']."): ");
-		if(!empty($q)){
-			$config['domain'] = $q;
-		}
-		$q = stdin("输入注册域名 (".$config['apikey']."): ");
-		if(!empty($q)){
-			$config['apikey'] = $q;
-		}
-		return $config;
+function input_config($config){
+	$q = stdin("输入im服务器地址 (".$config['imsvr']."): ");
+	if(!empty($q)){
+		$config['apikey'] = $q;
 	}
-
-	function stdin($notice, $required = false){
-		echo $notice;
-		$stdin=fopen('php://stdin','r');
-		$input=fgets($stdin, 1024);
-		$q = trim($input);
-		$q = $required && empty($q) ? stdin($notice) : $q;
-		return $q;
+	$q = stdin("输入注册域名 (".$config['domain']."): ");
+	if(!empty($q)){
+		$config['domain'] = $q;
 	}
+	$q = stdin("输入注册域名 (".$config['apikey']."): ");
+	if(!empty($q)){
+		$config['apikey'] = $q;
+	}
+	return $config;
+}
 
-	function merge_config($new, $old){
-		if($old){
-			foreach($old as $k => $v){
-				if(isset($new[$k]) && $k != 'version' && $k != 'enable'){
-					$new[$k] = $v;
-				}
+function stdin($notice, $required = false){
+	echo $notice;
+	$stdin=fopen('php://stdin','r');
+	$input=fgets($stdin, 1024);
+	$q = trim($input);
+	$q = $required && empty($q) ? stdin($notice) : $q;
+	return $q;
+}
+
+function merge_config($new, $old){
+	if($old){
+		foreach($old as $k => $v){
+			if(isset($new[$k]) && $k != 'version' && $k != 'enable'){
+				$new[$k] = $v;
 			}
 		}
-		return $new;
 	}
+	return $new;
+}
 
-	function select_unwritable_path($paths){
-		$p = array();
-		foreach($paths as $k => $v){
-			if(!is_writable($v)){
-				$p[] = $v;
-			}
+function select_unwritable_path($paths){
+	$p = array();
+	foreach($paths as $k => $v){
+		if(!is_writable($v)){
+			$p[] = $v;
 		}
-		return $p;
 	}
-	function success_log($logs, $truncate_size, $html = false){
-		$faild_num = 0;
+	return $p;
+}
+function success_log($logs, $truncate_size, $html = false){
+	$faild_num = 0;
+	foreach($logs as $k => $v){
+		if(!$v[0]){
+			$faild_num += 1;
+		}
+	}
+	$desc = $faild_num > 0 ? "WebIM安装失败，请联系开发人员。" : "WebIM安装成功。";
+	$markup = "";
+	if($html){
+	}else{
+		$markup .= "\n安装WebIM\n---------------------------------\n";
 		foreach($logs as $k => $v){
-			if(!$v[0]){
-				$faild_num += 1;
-			}
+			$markup .= $v[1].($v[0] ? " 成功" : " 失败")." (".substr($v[2], $truncate_size).")	\n";
 		}
-		$desc = $faild_num > 0 ? "WebIM安装失败，请联系开发人员。" : "WebIM安装成功。";
-		$markup = "";
-		if($html){
-		}else{
-			$markup .= "\n安装WebIM\n---------------------------------\n";
-			foreach($logs as $k => $v){
-				$markup .= $v[1].($v[0] ? " 成功" : " 失败")." (".substr($v[2], $truncate_size).")	\n";
-			}
-			$markup .= "---------------------------------\n";
-			$markup .= "\n".$desc."\n\n";
-		}
-		return $markup;
+		$markup .= "---------------------------------\n";
+		$markup .= "\n".$desc."\n\n";
 	}
-	function unwritable_log($paths, $truncate_size = 0, $html = false){
-		$desc = "下面这些文件需要可写权限才能继续安装，请修改这些文件的权限为777";
-		$markup = "";
-		if($html){
-		}else{
-			$markup .= "\n".$desc."\n";
-			$markup .= "---------------------------------\n";
-			foreach($paths as $k => $v){
-				$markup .= substr($v, $truncate_size)."\n";
-			}
-			$markup .= "---------------------------------\n\n";
+	return $markup;
+}
+function unwritable_log($paths, $truncate_size = 0, $html = false){
+	$desc = "下面这些文件需要可写权限才能继续安装，请修改这些文件的权限为777";
+	$markup = "";
+	if($html){
+	}else{
+		$markup .= "\n".$desc."\n";
+		$markup .= "---------------------------------\n";
+		foreach($paths as $k => $v){
+			$markup .= substr($v, $truncate_size)."\n";
 		}
-		return $markup;
+		$markup .= "---------------------------------\n\n";
 	}
+	return $markup;
+}
 ?>
