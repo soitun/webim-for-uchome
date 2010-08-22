@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @author Hidden <zzdhidden@gmail.com>
+ *
+ */
+
 function install_db($db, $file){
 	$logs = array();
 	$sql = file_get_contents($file);
@@ -139,6 +144,14 @@ function unwritable_log($paths, $truncate_size = 0, $html = false){
 		$markup .= "---------------------------------\n\n";
 	}
 	return $markup;
+}
+/**
+ * 
+ * @param
+ * @return
+ *
+ */
+function report_install(){
 }
 
 ?>
