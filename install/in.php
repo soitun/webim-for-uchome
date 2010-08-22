@@ -41,7 +41,7 @@ if(!empty($unwritable_paths)){
 }else{
 	$PRE_IMC = isset($_IMC) ? $_IMC : null;
 	include_once(IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'config.php');
-	//$_IMC = input_config(merge_config($_IMC, $PRE_IMC));
+	$_IMC = input_config(merge_config($_IMC, $PRE_IMC));
 	$logs = install_config($_IMC, $im_config_file, $product_config_file);
 	$logs = array_merge($logs, install_template($templates, $template_file));
 	$logs = array_merge($logs, install_db($db_config, $db_file));
@@ -60,7 +60,7 @@ function install_db($db, $file){
 	$sql = file_get_contents($file);
 	/* Replace @charset to database charset at first. */
 	$sql = preg_replace('/\@charset/', $db['charset'], $sql);
-	//Add prefix
+	/* Add db prefix */
 	$sql = preg_replace('/\webim_/', $db['db_prefix'].'webim_', $sql);
 
 	$link = mysql_connect($db['host'], $db['username'], $db['password']);
@@ -100,99 +100,105 @@ function install_config($config, $file, $product_file){
 		$logs[] = array(true, "检查加载", $product_file);
 	}
 	return $logs;
-}
-
-function install_template($templates, $file){
-	$logs = array();
-	$markup = file_get_contents($file);
-	foreach($templates as $k => $v) {
-		$tmp = $v.DIRECTORY_SEPARATOR.basename($file);
-		$logs[] = array(true, (file_exists($tmp) ? "更新" : "写入")."模版", $tmp);
-		file_put_contents($tmp, $markup);
-		$inc = $v.DIRECTORY_SEPARATOR.'footer.htm';
-		$name = basename($file, ".htm");
-		$html = file_get_contents($inc);
-		$html = preg_replace('/<\!--\{template\swebim[^>]+>/i', "", $html);
-		list($html, $foot) = explode("</body>", $html);
-		$logs[] = array(true, "加载模版", $inc);
-		$inc_markup = "<!--{template ".$name."}-->";
-		$html .= $inc_markup."</body>".$foot;
-		file_put_contents($inc, $html);
 	}
-	return $logs;
-}
 
-function input_config($config){
-	$q = stdin("输入im服务器地址 (".$config['imsvr']."): ");
-	if(!empty($q)){
-		$config['apikey'] = $q;
+	function install_template($templates, $file){
+		$logs = array();
+		$markup = file_get_contents($file);
+		foreach($templates as $k => $v) {
+			$tmp = $v.DIRECTORY_SEPARATOR.basename($file);
+			$logs[] = array(true, (file_exists($tmp) ? "更新" : "写入")."模版", $tmp);
+			file_put_contents($tmp, $markup);
+			$inc = $v.DIRECTORY_SEPARATOR.'footer.htm';
+			$name = basename($file, ".htm");
+			$html = file_get_contents($inc);
+			$html = preg_replace('/<\!--\{template\swebim[^>]+>/i', "", $html);
+			list($html, $foot) = explode("</body>", $html);
+			$logs[] = array(true, "加载模版", $inc);
+			$inc_markup = "<!--{template ".$name."}-->";
+			$html .= $inc_markup."</body>".$foot;
+			file_put_contents($inc, $html);
+		}
+		return $logs;
 	}
-	$q = stdin("输入注册域名 (".$config['domain']."): ");
-	if(!empty($q)){
-		$config['domain'] = $q;
-	}
-	$q = stdin("输入注册域名 (".$config['apikey']."): ");
-	if(!empty($q)){
-		$config['apikey'] = $q;
-	}
-	return $config;
-}
 
-function stdin($notice, $required = false){
-	echo $notice;
-	$stdin=fopen('php://stdin','r');
-	$input=fgets($stdin, 1024);
-	$q = trim($input);
-	$q = $required && empty($q) ? stdin($notice) : $q;
-	return $q;
-}
+	function input_config($config){
+		$q = stdin("输入im服务器地址 (".$config['imsvr']."): ");
+		if(!empty($q)){
+			$config['apikey'] = $q;
+		}
+		$q = stdin("输入注册域名 (".$config['domain']."): ");
+		if(!empty($q)){
+			$config['domain'] = $q;
+		}
+		$q = stdin("输入注册域名 (".$config['apikey']."): ");
+		if(!empty($q)){
+			$config['apikey'] = $q;
+		}
+		return $config;
+	}
 
-function merge_config($new, $old){
-	if($old){
-		foreach($old as $k => $v){
-			if(isset($new[$k]) && $k != 'version' && $k != 'enable'){
-				$new[$k] = $v;
+	function stdin($notice, $required = false){
+		echo $notice;
+		$stdin=fopen('php://stdin','r');
+		$input=fgets($stdin, 1024);
+		$q = trim($input);
+		$q = $required && empty($q) ? stdin($notice) : $q;
+		return $q;
+	}
+
+	function merge_config($new, $old){
+		if($old){
+			foreach($old as $k => $v){
+				if(isset($new[$k]) && $k != 'version' && $k != 'enable'){
+					$new[$k] = $v;
+				}
 			}
 		}
+		return $new;
 	}
-	return $new;
-}
 
-function select_unwritable_path($paths){
-	$p = array();
-	foreach($paths as $k => $v){
-		if(!is_writable($v)){
-			$p[] = $v;
-		}
-	}
-	return $p;
-}
-function success_log($logs, $truncate_size, $html = false){
-	$desc = "webim安装成功";
-	$markup = "";
-	if($html){
-	}else{
-		$markup .= "\n---------------------------------\n";
-		foreach($logs as $k => $v){
-			$markup .= $v[1]." (".substr($v[2], $truncate_size).")	".($v[0] ? "ok" : "faild")."\n";
-		}
-		$markup .= "---------------------------------\n";
-		$markup .= "\n".$desc."\n\n";
-	}
-	return $markup;
-}
-function unwritable_log($paths, $truncate_size = 0, $html = false){
-	$desc = "下面这些文件需要可写权限才能继续安装，请修改这些文件的权限为777";
-	$markup = "";
-	if($html){
-	}else{
-		$markup .= "\n".$desc."\n";
-		$markup .= "---------------------------------\n";
+	function select_unwritable_path($paths){
+		$p = array();
 		foreach($paths as $k => $v){
-			$markup .= substr($v, $truncate_size)."\n";
+			if(!is_writable($v)){
+				$p[] = $v;
+			}
 		}
-		$markup .= "---------------------------------\n\n";
+		return $p;
 	}
-	return $markup;
-}
+	function success_log($logs, $truncate_size, $html = false){
+		$faild_num = 0;
+		foreach($logs as $k => $v){
+			if(!$v[0]){
+				$faild_num += 1;
+			}
+		}
+		$desc = $faild_num > 0 ? "WebIM安装失败，请联系开发人员。" : "WebIM安装成功。";
+		$markup = "";
+		if($html){
+		}else{
+			$markup .= "\n安装WebIM\n---------------------------------\n";
+			foreach($logs as $k => $v){
+				$markup .= $v[1].($v[0] ? " 成功" : " 失败")." (".substr($v[2], $truncate_size).")	\n";
+			}
+			$markup .= "---------------------------------\n";
+			$markup .= "\n".$desc."\n\n";
+		}
+		return $markup;
+	}
+	function unwritable_log($paths, $truncate_size = 0, $html = false){
+		$desc = "下面这些文件需要可写权限才能继续安装，请修改这些文件的权限为777";
+		$markup = "";
+		if($html){
+		}else{
+			$markup .= "\n".$desc."\n";
+			$markup .= "---------------------------------\n";
+			foreach($paths as $k => $v){
+				$markup .= substr($v, $truncate_size)."\n";
+			}
+			$markup .= "---------------------------------\n\n";
+		}
+		return $markup;
+	}
 ?>
