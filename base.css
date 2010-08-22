@@ -7,7 +7,7 @@ h1{
 	margin: 0;
 	padding: 20px 20px 10px;
 	background: #F5F7F9;
-	border-top: 2px solid red;
+	border-top: 3px solid red;
 	color: #137CCD;
 	border-bottom: 1px solid #CAD3DE;
 }
@@ -24,17 +24,26 @@ a:hover{
 	width: 400px;
 	margin: 20px auto;
 	padding: 0;
-	border: 3px solid #FF9900;
+	border: 1px solid #137CCD;
+	border-top-width: 3px;
+}
+.box-error{
+	border-color: red;
 }
 .box h3{
 	font-size: 14px;
 	margin: 0;
 	padding: 10px;
 	border-bottom: 1px solid #ddd;
+	background: #F0F8FF;
+}
+
+.box-error h3{
 	background: #FFF8DC;
 }
 .box-desc{
 	margin: 10px 0;
+	color: green;
 }
 
 .box-c{

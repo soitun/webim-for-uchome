@@ -29,13 +29,16 @@ function config_html($config, $errors = array()){
 	$domain = $config['domain'];
 	$apikey = $config['apikey'];
 	$err = "";
+	$err_c = "";
 	if(!empty($errors)){
+		$err_c = " box-error";
 		$err = "<ul class=\"error\"><li>".implode($errors, "</li><li>")."</li></ul>";
 	}
 	return <<<EOF
-		<div class="box">
+		<div class="box$err_c">
 		<h3>设置安装信息</h3>
 		<div class="box-c">
+			<p class="box-desc">请先到NextIM网站注册</p>
 			$err
 			<form action="" method="post" class="form">
 				<p><label for="imsvr">服务器地址：</label><input class="text" type="text" id="imsvr" value="$imsvr" name="imsvr"/><span class="help">IM服务器地址</span></p>
