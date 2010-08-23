@@ -8,7 +8,6 @@ $stranger_ids = ids_except($space["uid"], ids_array(gp("stranger_ids")));//陌�
 $friend_ids = ids_array($space['friends']);
 $buddy_ids = ids_array(gp("buddy_ids"));//正在聊天的联系人
 
-//var_dump($friend_ids);
 
 $name = nick($space);
 $nick = to_utf8($name);
@@ -103,8 +102,8 @@ if(empty($ticket)){
 //=
 //$a='{"a":"available","b":{"x":1,"y":2,"z":3},"c":"hidden"}';
 //$ja=json_decode($a);
-
-$online_buddies=build_buddies($pageData->names);//online buddies
+//var_dump($pageData->buddies);
+$online_buddies=build_buddies($pageData->buddies);//online buddies
 //
 
 //$buddy_online_ids = ids_array($ids_string);
@@ -128,8 +127,8 @@ $output['user']=array('id'=>$space['username'],
                        'pic_url'=>avatar($space['uid'],'small',true),
                        'status'=>'',
                        'status_time'=>'',
+                       'show '=>'chat',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
-
 $imserver = 'http://'.$_IMC['imsvr'].':'.$_IMC['impoll'];
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 
