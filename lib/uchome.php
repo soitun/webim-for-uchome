@@ -134,6 +134,13 @@ if(empty($_SGLOBAL['supe_uid'])) {
 	$space = getspace($_SGLOBAL['supe_uid']);
 }
 $groups = getfriendgroup();
+function build_buddies($buddies){
+    $_buddies = array();
+    foreach($buddies as $name=>$show)
+        $_buddies[$name]=array('id'=>$name,'show'=>$show,'need_reload'=>true);
+    return $_buddies;
+}
+
 function find_buddy($ids){ 
         global $_SGLOBAL,$_IMC,$space, $groups;
         $ids = ids_array($ids);
@@ -147,7 +154,7 @@ function find_buddy($ids){
                 WHERE main.uid IN ($ids)");
         while ($value = $_SGLOBAL['db']->fetch_array($query)) {
                 realname_set($value['uid'], to_utf8($value['username']));
-                $id = $value['uid'];
+                $id = $value['username'];
                 $nick = nick($value); 
                 $group = empty($value['fuid']) ? "stranger" : null; 
                 if(empty($value['fuid'])){
