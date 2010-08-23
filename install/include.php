@@ -54,7 +54,7 @@ function install_config($config, $file, $product_file){
 	if(strpos($markup, 'webim/config.php') === false) {
 		$markup = trim($markup);
 		$markup = substr($markup, -2) == '?>' ? substr($markup, 0, -2) : $markup;
-		$markup .= "include_once('webim/config.php');";
+		$markup .= "@include_once('webim/config.php');";
 		file_put_contents($product_file, $markup);
 		$logs[] = array(true, "加载配置", $product_file);
 	}else{
