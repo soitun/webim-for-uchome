@@ -52,15 +52,15 @@ $setting = json_encode(setting());
 	var webim = window.webim;
 	webim.defaults.urls = {
 		online:path + "webim/api/online.php?platform=" + platform,
-		online_list:path + "webim/api/online_list.php?platform=" + platform,
 		offline:path + "webim/api/offline.php?platform=" + platform,
 		message:path + "webim/api/message.php?platform=" + platform,
+		presence:path + "webim/api/presence.php?platform=" + platform,
 		refresh:path + "webim/api/refresh.php?platform=" + platform,
 		status:path + "webim/api/status.php?platform=" + platform
 	};
 	webim.setting.defaults.url = path + "webim/api/setting.php?platform="+platform;
 	webim.history.defaults.urls = {
-		load: path + "webim/api/histories.php?platform=" + platform,
+		load: path + "webim/api/history.php?platform=" + platform,
 		clear: path + "webim/api/clear_history.php?platform=" + platform
 	};
     	webim.room.defaults.urls = {
@@ -69,81 +69,23 @@ $setting = json_encode(setting());
                     leave: path + "webim/api/leave.php?platform=" + platform
     	};
 	webim.buddy.defaults.url = path + "webim/api/user_info.php?platform=" + platform;
-	//webim.notification.defaults.url = path + "webim/api/notifications.php?platform=" + platform;
+	webim.notification.defaults.url = path + "webim/api/notifications.php?platform=" + platform;
     
-	if ( platform === "discuz" ){
-		webim.hotpost.defaults.url = path + "webim/api/hotpost.php?platform=" + platform;
-		webim.defaults.urls.online = path + "webim/api/online.php?platform=" + platform + "&room_ids=" + getTid();
-	}
 
 	webim.ui.emot.init({"dir": path + "webim/static/images/emot/default"});
 	var soundUrls = {
 		lib: path + "webim/static/assets/sound.swf",
 		msg: path + "webim/static/assets/sound/msg.mp3"
 	};
-	function mapIds(data){
-		return webim.map(data, function(v,i){ return v.id});
-	}
-	function getTid(){
-		var url = location;
-		var reg = /tid=(\d*)/;
-		if (reg.test(url)){
-			return RegExp.$1;
-		}
-		return "";
-	}
+	var ui = new webim.ui(document.body, {
+		soundUrls: soundUrls
+	}), im = ui.im;
+	ui.addApp("menu", {"data": menu});
+	ui.layout.addShortcut( menu);
+	ui.addApp("buddy");
+	ui.addApp("room");
+	ui.addApp("notification");
+	ui.addApp("setting", {"data": webim.setting.defaults.data});
+	ui.render();
 
-	var body , imUI, im, layout, chatlink;
-	function create(){
-		body = document.body;
-		imUI = new webim.ui(null,{menu: menu});
-		im = imUI.im;
-		var adminids = "<?php echo $_IMC['admin_ids'] ?>";
-		im.admins = adminids?adminids.split(","):"";
-        	im.isStrangerOn = "on";
-		layout = imUI.layout;
-                imUI.addApp("room");
-		if ( platform === "discuz" ){
-			imUI.addApp("hotpost");
-		}
-                //imUI.addApp("chatlink");
-		body.appendChild(layout.element);
-                setTimeout(function(){imUI.initSound(soundUrls)},1000);
-		im.bind("ready",ready).bind("go",go).bind("stop",stop);
-		//log
-	}
-	function init(){
-		layout.buildUI();
-		chatlink = new webim.ui.chatlink(null).bind("select",function(id){
-			imUI.addChat(id);
-			layout.focusChat(id);
-		});
-		im.buddy.bind("online",function(data){
-			chatlink.online(mapIds(data));
-		}).bind("onlineDelay",function(data){
-			chatlink.online(mapIds(data));
-		}).bind("offline",function(data){
-			chatlink.offline(mapIds(data));
-		});
-		im.setStranger(chatlink.idsArray());
-		im.autoOnline() && im.online();
-	}
-	function ready(){
-		chatlink.enable();
-	}
-	function go(){
-		chatlink.remove(im.data.user.id);
-	}
-	function stop(){
-		chatlink.disable();
-		chatlink.offline(chatlink.idsArray());
-	}
-	if (window.ActiveXObject){
-		setTimeout(function(){document.body?create():webim.ui.ready(create);},1000);
-		setTimeout(function(){webim.ui.ready(init);},1000);
-	}else{
-		document.body?create():webim.ui.ready(create);
-		//webim.ui.ready(init);
-		init();
-	}
 })(webim);

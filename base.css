@@ -1,0 +1,95 @@
+body{
+	margin: 0;
+	font-size: 12px;
+}
+h1{
+	font-size: 24px;
+	margin: 0;
+	padding: 20px 20px 10px;
+	background: #F5F7F9;
+	border-top: 3px solid red;
+	color: #137CCD;
+	border-bottom: 1px solid #CAD3DE;
+}
+a{
+	color: #137CCD;
+	text-decoration: none;
+}
+
+a:hover{
+	text-decoration: underline;
+}
+
+.box{
+	width: 400px;
+	margin: 20px auto;
+	padding: 0;
+	border: 1px solid #137CCD;
+	border-top-width: 3px;
+}
+.box-error{
+	border-color: red;
+}
+.box h3{
+	font-size: 14px;
+	margin: 0;
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
+	background: #F0F8FF;
+}
+
+.box-error h3{
+	background: #FFF8DC;
+}
+.box-desc{
+	margin: 10px 0;
+	color: green;
+}
+
+.box-c{
+	padding: 10px;
+}
+
+.form{
+	margin: 0;
+	padding: 0;
+}
+
+.form p{
+	overflow: hidden;
+}
+.form label{
+	float: left;
+	width: 100px;
+	padding: 5px;
+}
+.form .text{
+	float: left;
+	padding: 4px;
+	width: 240px;
+}
+.form .help{
+	padding: 5px;
+	padding-left: 110px;
+	color: gray;
+	float: left;
+}
+.form .actions{
+	text-align: center;
+}
+.form .submit{
+	padding: 5px 20px;
+	background: #FFF8DC;
+	border: 1px solid #FF9900;
+	border-bottom-width: 2px;
+}
+
+.error{
+	color: red;
+}
+
+#footer{
+	border-top: 1px solid #e5e5e5;
+	padding: 0 20px;
+	text-align: right;
+}
