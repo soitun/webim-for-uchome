@@ -1799,8 +1799,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Sat Aug 21 15:35:07 2010 +0800
- * Commit: afb263d7d16902e9cf0c7449b82d546cd8a702ac
+ * Date: Mon Aug 23 18:01:36 2010 +0800
+ * Commit: 8a2965cf8b86eb8276392793f26c3ca604cbf1c0
  */
 (function(window,document,undefined){
 
@@ -3796,6 +3796,7 @@ widget("chat",{
 			type: options.msgType,
 			to: info.id,
 			from: options.user.id,
+			nick: options.user.nick,
 			//stype: '',
 			offline: info.presence != "online",
 			timestamp: (new Date()).getTime(),
