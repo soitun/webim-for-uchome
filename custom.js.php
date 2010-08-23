@@ -59,11 +59,13 @@ $setting = json_encode(setting());
 		soundUrls: soundUrls
 	}), im = ui.im;
 	ui.addApp("menu", {"data": menu});
-	ui.layout.addShortcut( menu);
+	//rm shortcut in uchome
+	//ui.layout.addShortcut( menu);
 	ui.addApp("buddy");
 	ui.addApp("room");
 	ui.addApp("notification");
 	ui.addApp("setting", {"data": webim.setting.defaults.data});
 	ui.render();
+        im.autoOnline() && im.online();
 
 })(webim);
