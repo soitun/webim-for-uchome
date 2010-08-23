@@ -129,7 +129,7 @@ $output['user']=array('id'=>$space['username'],
                        'status_time'=>'',
                        'show '=>'chat',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
-$imserver = 'http://'.$_IMC['imsvr'].':'.$_IMC['impoll'];
+$imserver = 'http://'.$_IMC['imsvr'].':'.$_IMC['impoll']."/packets";
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 
 $output['new_messages'] = $new_messages;
