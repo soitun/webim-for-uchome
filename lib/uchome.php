@@ -1,11 +1,10 @@
 <?php
 
 include_once '..' . DIRECTORY_SEPARATOR . 'config.php';
-error_reporting(0);
+//error_reporting(0);
 define('IM_ROOT', dirname(__FILE__).DIRECTORY_SEPARATOR);
-include_once($_IMC['uchome_path'].'common.php');
+include_once(dirname(dirname(IM_ROOT)).DIRECTORY_SEPARATOR.'common.php');
 include_once(IM_ROOT . "json.php");
-
 
 
 function user_pic($uid){
@@ -123,7 +122,7 @@ function ids_except($id, $ids){
         return $ids;
 }
 function im_tname($name){
-        return "`webim_".$name."`";
+        return UC_DBTABLEPRE."webim_".$name;
 }
 
 $is_login = false;
@@ -293,10 +292,10 @@ function find_history($ids){
 function setting(){
         global $_SGLOBAL,$_IMC,$space;
 	if(!empty($_SGLOBAL['supe_uid'])) {
-		$setting  = $_SGLOBAL['db']->fetch_array($_SGLOBAL['db']->query("SELECT * FROM ".im_tname('setting')." WHERE uid='$_SGLOBAL[supe_uid]'"));
+		$setting  = $_SGLOBAL['db']->fetch_array($_SGLOBAL['db']->query("SELECT * FROM ".im_tname('settings')." WHERE uid='$_SGLOBAL[supe_uid]'"));
 		if(empty($setting)){
 			$setting = array('uid'=>$space['uid'],'web'=>"");
-			$_SGLOBAL['db']->query("INSERT INTO ".im_tname('setting')." (uid,web) VALUES ($_SGLOBAL[supe_uid],'')");
+			$_SGLOBAL['db']->query("INSERT INTO ".im_tname('settings')." (uid,web) VALUES ($_SGLOBAL[supe_uid],'')");
 		}
 		$setting = $setting["web"];
 	}

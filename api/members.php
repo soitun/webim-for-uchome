@@ -10,7 +10,7 @@ if(empty($ticket)) {
     exit;
 }
 $data = array('ticket'=>$ticket, 'domain'=>$_IMC['domain'], 'apikey'=>$_IMC['apikey'], 'rooms'=>$room_id, 'endpoint' => $space['uid']);
-$client = new HttpClient($_IMC['imsvr'], $_IMC['impost']);
+$client = new HttpClient($_IMC['host'], $_IMC['port']);
 $client->post('/room/members', $data);
 $pageContents = $client->getContent();
 $result  = json_decode($pageContents,TRUE);

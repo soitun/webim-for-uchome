@@ -15,7 +15,7 @@ $time = microtime(true)*1000;
 if($type != "broadcast" && (empty($to)||empty($from))){
 	echo "{success:false}"."{".$to.":".$from."}";exit();
 }
-$client = new HttpClient($_IMC['imsvr'], $_IMC['impost']);
+$client = new HttpClient($_IMC['host'], $_IMC['port']);
 $nick = to_unicode(to_utf8(nick($space)));
 
 //=

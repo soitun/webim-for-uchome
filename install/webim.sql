@@ -1,3 +1,7 @@
+/**
+ * Replace '@charset' to database charset at first.
+ * And then add prefix before the string of 'webim_' if need.
+ */
 /*!50003 SET character_set_client  = utf8 */ ;
 /*!50003 SET character_set_connection  = @charset */ ;
 /*!50003 SET character_set_results = utf8 */ ;
@@ -29,7 +33,7 @@ CREATE TABLE webim_histories (
 	KEY `to` (`to`),
 	KEY `from` (`from`),
 	KEY `send` (`send`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=@charset;
 
 CREATE TABLE IF NOT EXISTS webim_settings(
 	`id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -39,4 +43,4 @@ CREATE TABLE IF NOT EXISTS webim_settings(
 	`created_at` date DEFAULT NULL,
 	`updated_at` date DEFAULT NULL,
 	PRIMARY KEY (`id`) 
-)ENGINE=MyISAM;
+)ENGINE=MyISAM DEFAULT CHARSET=@charset;
