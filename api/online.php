@@ -8,7 +8,6 @@ $stranger_ids = ids_except($space["uid"], ids_array(gp("stranger_ids")));//陌�
 $friend_ids = ids_array($space['friends']);
 $buddy_ids = ids_array(gp("buddy_ids"));//正在聊天的联系人
 
-//var_dump($friend_ids);
 
 $name = nick($space);
 $nick = to_utf8($name);
@@ -77,6 +76,9 @@ if(!empty($ids)) {
     }
 }
 $buddies[] = "root";
+//$a='{"a":"available","b":{"x":1,"y":2,"z":3},"c":"hidden"}';
+//$ja=json_decode($a);
+//build_buddies($ja->b);
 
 $data = array('rooms'=> join(',', $room_ids),'buddies'=>join(',', $buddies), 'domain' => $_IMC['domain'], 'apikey' => $_IMC['apikey'], 'endpoint'=> $space['username'], 'nick'=>to_unicode($nick));
 
@@ -86,7 +88,7 @@ $pageContents = $client->getContent();
 //var_dump($pageContents);
 //TODO: handle errors!
 $pageData = json_decode($pageContents);
-
+//var_dump($pageData);
 if($client->status !="200"||empty($pageData->ticket)){
         $ticket ="";
 }else
@@ -98,10 +100,13 @@ if(empty($ticket)){
 }
 
 //=
-$ids_string=names_to_ids($pageData->buddies);
+//$a='{"a":"available","b":{"x":1,"y":2,"z":3},"c":"hidden"}';
+//$ja=json_decode($a);
+//var_dump($pageData->buddies);
+$online_buddies=build_buddies($pageData->buddies);//online buddies
 //
 
-$buddy_online_ids = ids_array($ids_string);//online ids
+//$buddy_online_ids = ids_array($ids_string);
 
 //$_SESSION['online_ids'] = $buddy_online_ids;
 $clientnum = $pageData->clientnum;
@@ -112,7 +117,7 @@ if(is_object($rooms_num)){
 	}
 }
 $output = array();
-$output['buddy_online_ids'] = join(",", $buddy_online_ids);
+//$output['buddy_online_ids'] = join(",", $buddy_online_ids);
 $output['clientnum'] = $clientnum;
 $output['server_time'] = microtime(true)*1000;
 
@@ -122,13 +127,14 @@ $output['user']=array('id'=>$space['username'],
                        'pic_url'=>avatar($space['uid'],'small',true),
                        'status'=>'',
                        'status_time'=>'',
+                       'show '=>'chat',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
-
 $imserver = 'http://'.$_IMC['imsvr'].':'.$_IMC['impoll'];
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 
 $output['new_messages'] = $new_messages;
-$output['buddies'] = find_buddy($buddy_ids);
+$output['buddies'] = array_merge(find_buddy($buddy_ids),$online_buddies);
+//var_dump($online_buddies);
 $output['rooms'] = $rooms;
 $output['histories'] = find_history($buddy_ids);
 //var_dump($output['buddies']);
