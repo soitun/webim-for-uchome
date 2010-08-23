@@ -19,7 +19,15 @@ $client = new HttpClient($_IMC['host'], $_IMC['port']);
 $nick = to_unicode(to_utf8(nick($space)));
 
 
-$client->post('/messages', array('domain'=>$_IMC['domain'],'apikey'=>$_IMC['apikey'],'ticket' => $ticket,'nick'=>$nick, 'type'=> $type, 'to'=>$to,'body'=>to_unicode($body),'timestamp'=>(string)$time,'style'=>$style));
+$client->post('/messages', array('domain'=>$_IMC['domain'],
+                                 'apikey'=>$_IMC['apikey'],
+                                 'ticket' => $ticket,
+                                 'nick'=>$nick,
+                                 'type'=> $type,
+                                 'to'=>$to,
+                                 'body'=>to_unicode($body),
+                                 'timestamp'=>(string)$time,
+                                 'style'=>$style));
 $pageContents = $client->getContent();
 
 //TODO:send => true if forward message successfully.

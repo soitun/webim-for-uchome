@@ -109,7 +109,7 @@ $output['server_time'] = microtime(true)*1000;
 
 $output['user']=array('id'=>$space['username'],
                        'nick'=>$nick,
-                       'default_pic_url'=>'images/noavatar_middle.gif',
+                       'default_pic_url'=>'/images/noavatar_middle.gif',
                        'pic_url'=>avatar($space['uid'],'small',true),
                        'status'=>'',
                        'status_time'=>'',
