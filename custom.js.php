@@ -1,8 +1,7 @@
 <?php
 header("Content-type: application/javascript");
 include_once 'config.php';
-
-$platform = $_GET['platform'];
+$platform = 'uchome';
 
 switch($platform){
 	case 'discuz':
