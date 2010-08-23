@@ -82,7 +82,7 @@ $buddies[] = "root";
 
 $data = array('rooms'=> join(',', $room_ids),'buddies'=>join(',', $buddies), 'domain' => $_IMC['domain'], 'apikey' => $_IMC['apikey'], 'endpoint'=> $space['username'], 'nick'=>to_unicode($nick));
 
-$client = new HttpClient($_IMC['imsvr'], $_IMC['impost']);
+$client = new HttpClient($_IMC['host'], $_IMC['port']);
 $client->post('/presences/online', $data);
 $pageContents = $client->getContent();
 //var_dump($pageContents);
@@ -129,7 +129,7 @@ $output['user']=array('id'=>$space['username'],
                        'status_time'=>'',
                        'show '=>'chat',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
-$imserver = 'http://'.$_IMC['imsvr'].':'.$_IMC['impoll']."/packets";
+$imserver = 'http://'.$_IMC['host'].':'.$_IMC['port']."/packets";
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 
 $output['new_messages'] = $new_messages;

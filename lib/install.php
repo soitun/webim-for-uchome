@@ -47,9 +47,9 @@ function clean_cache($dir){
 }
 
 function input_config($config){
-	$q = stdin("输入im服务器地址 (".$config['imsvr']."): ");
+	$q = stdin("输入im服务器地址 (".$config['host']."): ");
 	if(!empty($q)){
-		$config['imsvr'] = $q;
+		$config['host'] = $q;
 	}
 	$q = stdin("输入注册域名 (".$config['domain']."): ");
 	if(!empty($q)){

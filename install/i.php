@@ -10,8 +10,8 @@ if(!empty($unwritable_paths)){
 	$PRE_IMC = isset($_IMC) ? $_IMC : null;
 	include_once(IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'config.php');
 	$_IMC = merge_config($_IMC, $PRE_IMC);
-	if(isset($_POST['imsvr']) && isset($_POST['domain']) && isset($_POST['apikey'])){
-		$_IMC['imsvr'] = $_POST['imsvr'];
+	if(isset($_POST['host']) && isset($_POST['domain']) && isset($_POST['apikey'])){
+		$_IMC['host'] = $_POST['host'];
 		$_IMC['domain'] = $_POST['domain'];
 		$_IMC['apikey'] = $_POST['apikey'];
 		$logs = install_config($_IMC, $im_config_file, $product_config_file);
@@ -25,7 +25,7 @@ if(!empty($unwritable_paths)){
 }
 
 function config_html($config, $errors = array()){
-	$imsvr = $config['imsvr'];
+	$host = $config['host'];
 	$domain = $config['domain'];
 	$apikey = $config['apikey'];
 	$err = "";
@@ -41,7 +41,7 @@ function config_html($config, $errors = array()){
 			<p class="box-desc">请先到NextIM网站注册</p>
 			$err
 			<form action="" method="post" class="form">
-				<p><label for="imsvr">服务器地址：</label><input class="text" type="text" id="imsvr" value="$imsvr" name="imsvr"/><span class="help">IM服务器地址</span></p>
+				<p><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="$host" name="host"/><span class="help">IM服务器地址</span></p>
 				<p><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="$domain" name="domain"/><span class="help">网站注册域名</span></p>
 				<p><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="$apikey" name="apikey"/></p>
 				<p class="actions"><input type="submit" class="submit" value="提交" /></p>
