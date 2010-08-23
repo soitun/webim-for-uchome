@@ -1,5 +1,4 @@
 <?php
-$platform = $_GET['platform'];
 $configRoot = '..' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR ;
 include_once( $configRoot . 'http_client.php' );
 include_once($configRoot . 'uchome.php');

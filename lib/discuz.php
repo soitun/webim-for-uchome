@@ -280,9 +280,9 @@ function find_room($tid){
 
 function new_message_to_histroy(){
         global $_SGLOBAL,$_IMC,$space;
-        $uid = $space['uid'];
+        $uname = $space['username'];
         $_SGLOBAL['db']->query("SET NAMES " . UC_DBCHARSET);
-        $_SGLOBAL['db']->query("UPDATE ".im_tname('histories')." SET send=1 WHERE `to`='$uid' AND send = 0");
+        $_SGLOBAL['db']->query("UPDATE ".im_tname('histories')." SET send=1 WHERE `to`='$uname' AND send = 0");
 }
 
 function find_history($ids){
@@ -308,10 +308,11 @@ function find_history($ids){
                         }
                 }else{
              	        $query = $_SGLOBAL['db']->query("SELECT main.*, s.username, s.name FROM ".im_tname('histories')." main
-             	LEFT JOIN ".tname('space')." s ON s.uid=main.from
+             	LEFT JOIN ".tname('space')." s ON s.username=main.from
              	 WHERE `to`='$id' ORDER BY timestamp DESC LIMIT 30");
                         while ($value = $_SGLOBAL['db']->fetch_array($query)) {
-                                $nick = nick($value); array_unshift($list,array('to'=>$value['to'],'nick'=>to_utf8($nick),'from'=>$value['from'],'style'=>$value['style'],'body'=>to_utf8($value['body']),'timestamp'=>$value['timestamp']));
+                                $nick = nick($value);
+                                array_unshift($list,array('to'=>$value['to'],'nick'=>to_utf8($nick),'from'=>$value['from'],'style'=>$value['style'],'body'=>to_utf8($value['body']),'timestamp'=>$value['timestamp']));
              
                         }
                 }

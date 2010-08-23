@@ -8,9 +8,7 @@ $stranger_ids = ids_except($space["uid"], ids_array(gp("stranger_ids")));//陌�
 $friend_ids = ids_array($space['friends']);
 $buddy_ids = ids_array(gp("buddy_ids"));//正在聊天的联系人
 
-
-$name = nick($space);
-$nick = to_utf8($name);
+$nick = to_utf8(nick($space));
 
 /* if $friend_ids or $stranger_ids    = Null
  *
@@ -63,7 +61,7 @@ foreach($rooms as $key => $value){
 	if(in_array($key, $block_list)){
 		$rooms[$key]['blocked'] = true;
 	}else
-        $rooms[$key]['pic_url'] = "webim/static/images/group_chat_head.png";
+//        $rooms[$key]['pic_url'] = "webim/static/images/group_chat_head.png";
 		array_push($room_ids,$key);
 }
 //需要查找在线状况的人
@@ -76,19 +74,15 @@ if(!empty($ids)) {
     }
 }
 $buddies[] = "root";
-//$a='{"a":"available","b":{"x":1,"y":2,"z":3},"c":"hidden"}';
-//$ja=json_decode($a);
-//build_buddies($ja->b);
 
 $data = array('rooms'=> join(',', $room_ids),'buddies'=>join(',', $buddies), 'domain' => $_IMC['domain'], 'apikey' => $_IMC['apikey'], 'endpoint'=> $space['username'], 'nick'=>to_unicode($nick));
 
 $client = new HttpClient($_IMC['host'], $_IMC['port']);
 $client->post('/presences/online', $data);
 $pageContents = $client->getContent();
-//var_dump($pageContents);
-//TODO: handle errors!
+
 $pageData = json_decode($pageContents);
-//var_dump($pageData);
+
 if($client->status !="200"||empty($pageData->ticket)){
         $ticket ="";
 }else
@@ -99,16 +93,8 @@ if(empty($ticket)){
         exit();
 }
 
-//=
-//$a='{"a":"available","b":{"x":1,"y":2,"z":3},"c":"hidden"}';
-//$ja=json_decode($a);
-//var_dump($pageData->buddies);
 $online_buddies=build_buddies($pageData->buddies);//online buddies
-//
 
-//$buddy_online_ids = ids_array($ids_string);
-
-//$_SESSION['online_ids'] = $buddy_online_ids;
 $clientnum = $pageData->clientnum;
 $rooms_num = $pageData->roominfo;
 if(is_object($rooms_num)){
@@ -117,18 +103,19 @@ if(is_object($rooms_num)){
 	}
 }
 $output = array();
-//$output['buddy_online_ids'] = join(",", $buddy_online_ids);
+
 $output['clientnum'] = $clientnum;
 $output['server_time'] = microtime(true)*1000;
 
 $output['user']=array('id'=>$space['username'],
-                       'nick'=>to_utf8($name),
-                       'default_pic_url'=>'',
+                       'nick'=>$nick,
+                       'default_pic_url'=>'images/noavatar_middle.gif',
                        'pic_url'=>avatar($space['uid'],'small',true),
                        'status'=>'',
                        'status_time'=>'',
-                       'show '=>'chat',
+                       'show '=>'dnd',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
+
 $imserver = 'http://'.$_IMC['host'].':'.$_IMC['port']."/packets";
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 

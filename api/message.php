@@ -7,9 +7,9 @@ $ticket = gp('ticket');
 $body = gp('body','');
 $style = gp('style','');
 $to = gp('to');
-$send = gp('offline') == "1" ? false : true;
+$send = gp('offline') == "false" ? false : true;
 $type = gp('type');
-$from = $space['uid'];
+$from = $space['username'];
 $time = microtime(true)*1000;
 //change by chenxj
 if($type != "broadcast" && (empty($to)||empty($from))){
@@ -18,12 +18,8 @@ if($type != "broadcast" && (empty($to)||empty($from))){
 $client = new HttpClient($_IMC['host'], $_IMC['port']);
 $nick = to_unicode(to_utf8(nick($space)));
 
-//=
-$to_string=id_to_name($to);
-//
 
-
-$client->post('/messages', array('domain'=>$_IMC['domain'],'apikey'=>$_IMC['apikey'],'ticket' => $ticket,'nick'=>$nick, 'type'=> $type, 'to'=>$to_string,'body'=>to_unicode($body),'timestamp'=>(string)$time,'style'=>$style));
+$client->post('/messages', array('domain'=>$_IMC['domain'],'apikey'=>$_IMC['apikey'],'ticket' => $ticket,'nick'=>$nick, 'type'=> $type, 'to'=>$to,'body'=>to_unicode($body),'timestamp'=>(string)$time,'style'=>$style));
 $pageContents = $client->getContent();
 
 //TODO:send => true if forward message successfully.
