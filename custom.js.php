@@ -66,5 +66,6 @@ $setting = json_encode(setting());
 	ui.addApp("notification");
 	ui.addApp("setting", {"data": webim.setting.defaults.data});
 	ui.render();
+        im.autoOnline() && im.online();
 
 })(webim);
