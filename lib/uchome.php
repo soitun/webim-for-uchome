@@ -213,12 +213,12 @@ function find_new_message() {
                             ." WHERE `to`='$uname' and send = 0 ORDER BY timestamp DESC LIMIT 100");
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
         array_unshift($messages,array('to'=>$value['to'],
+                                      'nick'=>$value['nick'],
                                       'from'=>$value['from'],
                                       'style'=>$value['style'],
                                       'body'=>to_utf8($value['body']),
                                       'timestamp'=>$value['timestamp'],
-                                      'type' =>$value['type'],
-                                      'new' => 1));
+                                      'type' =>$value['type']));
     }
     return $messages;
 }
