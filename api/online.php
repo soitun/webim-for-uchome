@@ -95,6 +95,7 @@ $online_buddies=build_buddies($pageData->buddies);//online buddies
 $clientnum = $pageData->clientnum;
 $rooms_num = $pageData->roominfo;
 $out_rooms=array();
+
 if(is_object($rooms_num)){
 	foreach($rooms_num as $key => $value){
 		$rooms[$key]['count'] = $value;
