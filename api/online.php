@@ -51,7 +51,7 @@ foreach($rooms as $key => $value){
 //        $rooms[$key]['pic_url'] = "webim/static/images/group_chat_head.png";
 		array_push($room_ids,$key);
 }
-//需要查找在线状况的人
+
 if(!empty($friend_ids)) {
     $ids=join(",",$friend_ids);
     $query = $_SGLOBAL['db']-> query("SELECT username FROM ".tname('space')." WHERE uid IN ($ids)");

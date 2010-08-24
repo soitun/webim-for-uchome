@@ -196,7 +196,13 @@ function find_room() {
         $eid = 'channel:'.$id.'@'.$_IMC['domain'];
         $tagname = $value['tagname'];
         $pic = empty($value['pic']) ? 'image/nologo.jpg' : $value['pic'];
-        $rooms[$id]=array('id'=>$id,'nick'=> to_utf8($tagname), 'pic_url'=>$pic, 'status'=>'','status_time'=>'', 'all_count' => $value['membernum'], 'url'=>'space.php?do=mtag&tagid='.$tagid);
+        $rooms[$id]=array('id'=>$id,
+                          'nick'=> to_utf8($tagname),
+                          'pic_url'=>$pic,
+                          'status'=>'',
+                          'status_time'=>'',
+                          'all_count' => $value['membernum'],
+                          'url'=>'space.php?do=mtag&tagid='.$tagid);
     }
     return $rooms;
 }
@@ -251,7 +257,8 @@ function find_history($ids,$type="unicast") {
                         'style'=>$value['style'],
                         'body'=>to_utf8($value['body']),
                         'timestamp'=>$value['timestamp'],
-                        'type' =>$value['type'], 'new' => 0));
+                        'type' =>$value['type'], 'new' => 0)
+                        );
             }
         }
         //get group message
@@ -267,7 +274,7 @@ function find_history($ids,$type="unicast") {
                         'body'=>to_utf8($value['body']),
                         'timestamp'=>$value['timestamp'],
                         'type' =>$value['type'],
-                        'new' => 0));
+                        'nick'=>$value['nick']));
             }
         }
         //get personal message
