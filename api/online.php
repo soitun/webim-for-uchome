@@ -4,26 +4,13 @@ include_once($configRoot . 'http_client.php');
 include_once($configRoot . 'uchome.php');
 		
 if(empty($space))exit();
-$stranger_ids = ids_except($space["uid"], ids_array(gp("stranger_ids")));//陌生人
+//$stranger_ids = ids_except($space["uid"], ids_array(gp("stranger_ids")));//陌生人
 $friend_ids = ids_array($space['friends']);
 $buddy_ids = ids_array(gp("buddy_ids"));//正在聊天的联系人
 
-$nick = to_utf8(nick($space));
+$nick =  nick($space);
 
-/* if $friend_ids or $stranger_ids    = Null
- *
- * Change into Array().
- * */
-if(!$friend_ids){
-    $friend_ids = array();
-}
-if(!$stranger_ids){
-    $stranger_ids = array();
-}
 
-//var_dump($stranger_ids);
-//modify by jinyu
-//var_dump($_SESSION['uid']);
 if(!isset($_SESSION['uid'])){
 	$_SESSION['uid'] = $space["uid"];
 }
@@ -47,7 +34,7 @@ $new_messages = find_new_message();//查找离线消息
 for($i=0;$i<count($new_messages);$i++){
         $msg_uid = $new_messages[$i]["from"];
         array_push($buddy_ids, $msg_uid);
-        array_push($stranger_ids, $msg_uid);
+//        array_push($stranger_ids, $msg_uid);
 }
 
 //查找群组
@@ -65,17 +52,25 @@ foreach($rooms as $key => $value){
 		array_push($room_ids,$key);
 }
 //需要查找在线状况的人
-$ids = array_unique(array_merge($friend_ids, $buddy_ids, $stranger_ids));
-$ids = join(',', $ids);
-if(!empty($ids)) {
+if(!empty($friend_ids)) {
+    $ids=join(",",$friend_ids);
     $query = $_SGLOBAL['db']-> query("SELECT username FROM ".tname('space')." WHERE uid IN ($ids)");
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
         $buddies[] = $value['username'];
+
     }
 }
-$buddies[] = "root";
 
-$data = array('rooms'=> join(',', $room_ids),'buddies'=>join(',', $buddies), 'domain' => $_IMC['domain'], 'apikey' => $_IMC['apikey'], 'endpoint'=> $space['username'], 'nick'=>to_unicode($nick));
+$buddies=array_unique(array_merge($buddies,$buddy_ids));
+$buddies[]= "root";
+
+$data = array('rooms'=> join(',', $room_ids),
+              'buddies'=>join(',', $buddies),
+              'domain' => $_IMC['domain'],
+              'apikey' => $_IMC['apikey'],
+              'name'=> $space['username'],
+              'nick'=>$nick
+               );
 
 $client = new HttpClient($_IMC['host'], $_IMC['port']);
 $client->post('/presences/online', $data);
@@ -92,16 +87,21 @@ if(empty($ticket)){
         echo '{status: "'.$client->status.'", "errorMsg":"'.$pageContents.'"}';
         exit();
 }
-
+//$pageData->buddies
+//$a=json_decode('{"licangcai":"available", "qiukh":"dnd"}');
+//var_dump($pageData->buddies);
 $online_buddies=build_buddies($pageData->buddies);//online buddies
 
 $clientnum = $pageData->clientnum;
 $rooms_num = $pageData->roominfo;
+$out_rooms=array();
 if(is_object($rooms_num)){
 	foreach($rooms_num as $key => $value){
 		$rooms[$key]['count'] = $value;
+                $out_rooms[]=$rooms[$key];
 	}
 }
+
 $output = array();
 
 $output['clientnum'] = $clientnum;
@@ -109,22 +109,23 @@ $output['server_time'] = microtime(true)*1000;
 
 $output['user']=array('id'=>$space['username'],
                        'nick'=>$nick,
-                       'default_pic_url'=>'/images/noavatar_middle.gif',
+                       'default_pic_url'=> UC_API.'/images/noavatar_middle.gif',
                        'pic_url'=>avatar($space['uid'],'small',true),
                        'status'=>'',
                        'status_time'=>'',
                        'show '=>'dnd',
                        'url'=>'space.php?uid='.$space['uid']);//用户信息
 
+
 $imserver = 'http://'.$_IMC['host'].':'.$_IMC['port']."/packets";
 $output['connection'] = array('domain' => $_IMC['domain'], 'ticket'=>$ticket, 'server'=>$imserver);//服务器连接
 
 $output['new_messages'] = $new_messages;
 $output['buddies'] = array_merge(find_buddy($buddy_ids),$online_buddies);
-//var_dump($online_buddies);
-$output['rooms'] = $rooms;
+
+$output['rooms'] = $out_rooms;
 $output['histories'] = find_history($buddy_ids);
-//var_dump($output['buddies']);
+
 new_message_to_histroy(); //新消息转到历史记录
 
 echo json_encode($output);

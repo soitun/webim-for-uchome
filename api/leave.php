@@ -6,7 +6,7 @@ $ticket = gp('ticket');
 $room_id = gp('id');
 $nick = gp('nick');
 if(!empty($ticket)) {
-  $data = array('ticket'=>$ticket,'nick'=>$nick, 'domain'=>$_IMC['domain'], 'apikey'=>$_IMC['apikey'], 'room'=>$room_id, 'endpoint' => $space['uid']);
+  $data = array('ticket'=>$ticket,'nick'=>$nick, 'domain'=>$_IMC['domain'], 'apikey'=>$_IMC['apikey'], 'room'=>$room_id, 'name' => $space['uid']);
 	$client = new HttpClient($_IMC['host'], $_IMC['port']);
 	$client->post('/room/leave', $data);
 	$pageContents = $client->getContent();

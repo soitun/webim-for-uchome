@@ -6,7 +6,7 @@ include_once($configRoot . 'uchome.php');
 $status=gp("status");
 $show=gp("show");
 $ticket=gp("ticket");
-$nick = to_unicode(to_utf8(nick($space)));
+$nick =  nick($space);
 
 if(!empty($ticket)) {
     $data=array('domain'=>$_IMC['domain'],'apikey'=>$_IMC['apikey'],'ticket' => $ticket,'nick'=>$nick, 'show'=>$show,'status'=>$status);
