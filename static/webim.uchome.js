@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Wed Aug 25 17:02:50 2010 +0800
- * Commit: ac35d0f258766d966582722199054a9280568502
+ * Date: Wed Aug 25 18:37:08 2010 +0800
+ * Commit: 662c8e95431d78d2b965940c58f8ec32adcefffa
  */
 (function(window, document, undefined){
 
@@ -984,17 +984,21 @@ function webim(element, options){
 }
 
 extend(webim.prototype, objectExtend,{
-	_init:function(){
+	_init: function(){
 		var self = this;
-		self.data = {user:{}};
+		var user = {};
+		self.data = {user: user};
 		self.status = new webim.status();
 		self.setting = new webim.setting();
 		self.buddy = new webim.buddy(null, {loadDelay: !self.status.get("b")});
-		self.room = new webim.room();
-		self.history = new webim.history();
+		self.room = new webim.room(null, {user: user});
+		self.history = new webim.history(null, {user: user});
 		self.connection = new comet(null,{jsonp:true});
 		self._initEvents();
 		//self.online();
+	},
+	user: function(info){
+		extend(this.data.user, info);
 	},
 	_ready: function(post_data){
 		var self = this;
@@ -1029,7 +1033,9 @@ extend(webim.prototype, objectExtend,{
 		});
 		room.handle(roomData);
 		room.options.ticket = data.connection.ticket;
-		//handle new messages
+		self.trigger("go",[data]);
+		self.connection.connect(data.connection);
+		//handle new messages at last
 		var n_msg = data.new_messages;
 		if(n_msg && n_msg.length){
 			each(n_msg, function(n, v){
@@ -1037,8 +1043,6 @@ extend(webim.prototype, objectExtend,{
 			});
 			self.trigger("message",[n_msg]);
 		}
-		self.trigger("go",[data]);
-		self.connection.connect(data.connection);
 	},
 	_stop: function(msg){
 		var self = this;
@@ -1656,8 +1660,9 @@ model("buddy", {
 				}
 			});
 		},
-		join:function(id,user){
-			var self = this, options = self.options;
+		join:function(id){
+			var self = this, options = self.options, user = options.user;
+
 			ajax({
 				cache: false,
 				type: "post",
@@ -1675,8 +1680,8 @@ model("buddy", {
 				}
 			});
 		},
-		leave: function(id,user){
-			var self = this, options = self.options, d = self.dataHash[id];
+		leave: function(id){
+			var self = this, options = self.options, d = self.dataHash[id], user = options.user;
 			if(d){
 				d.initMember = false;
 				ajax({
@@ -1805,8 +1810,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Wed Aug 25 14:31:35 2010 +0800
- * Commit: cb9cfbec9a0309d69101595a73e3f7e316903c28
+ * Date: Wed Aug 25 18:46:11 2010 +0800
+ * Commit: c338766ed64bbaef90842a95615ca5d780d7cf50
  */
 (function(window,document,undefined){
 
@@ -3241,11 +3246,15 @@ widget("layout",{
 		addEvent($.prev,"mouseup", function(){self._slideUp();});
 		disableSelection($.prev);
 		addEvent($.expand, "click", function(){
+			if(!self.isMinimize()) return false;
 			self.expand();
+			self.trigger("expand");
 			return false;
 		});
 		addEvent($.collapse, "click", function(){
+			if(self.isMinimize()) return false;
 			self.collapse();
+			self.trigger("collapse");
 			return false;
 		});
 		hoverClass($.collapse, "ui-state-hover", "ui-state-default");
@@ -3258,13 +3267,11 @@ widget("layout",{
 		var self = this;
 		if(self.isMinimize()) return;
 		addClass(this.$.layout, "webim-layout-minimize");
-		self.trigger("collapse");
 	},
 	expand: function(){
 		var self = this;
 		if(!self.isMinimize()) return;
 		removeClass(self.$.layout, "webim-layout-minimize");
-		self.trigger("expand");
 	},
 	_displayUpdate:function(e){
 		this._ready && this.trigger("displayUpdate");
@@ -4164,7 +4171,7 @@ widget("setting",{
 			return;
 		}
 		var $ = self.$, tag = $[name];
-		if(isChecked && typeof isChecked == "boolean") {
+		if(isChecked && typeof isChecked != "boolean") {
 			return;
 		}
 		if(tag){
@@ -4339,6 +4346,7 @@ app("buddy", {
 		}).bind("presence", function(params){
 			im.sendPresence(params);
 		});
+		buddyUI.user.update(im.data.user);
 	},
 	ready: function(){
 		var ui = this, im = ui.im, buddy = im.buddy, buddyUI = ui.buddy;
@@ -4346,7 +4354,6 @@ app("buddy", {
 	},
 	go: function(){
 		var ui = this, im = ui.im, buddy = im.buddy, buddyUI = ui.buddy;
-		!buddyUI.window.isMinimize() && buddy.loadDelay();
 		buddyUI.notice("count", buddy.count({presence:"online"}));
 		buddyUI.user.update(im.data.user);
 	},
@@ -4623,11 +4630,11 @@ app("room",{
 		}).bind("block", function(id, list){
 			setting.set("blocked_rooms",list);
 			updateRoom(room.get(id));
-			room.leave(id,u);
+			room.leave(id);
 		}).bind("unblock", function(id, list){
 			setting.set("blocked_rooms",list);
 			updateRoom(room.get(id));
-			room.join(id,u);
+			room.join(id);
 		}).bind("addMember", function(room_id, info){
 			var c = layout.chat("room", room_id);
 			c && c.addMember(info.id, info.nick, info.id == im.data.user.id);
