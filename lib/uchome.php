@@ -1,7 +1,6 @@
 <?php
-
-include_once '..' . DIRECTORY_SEPARATOR . 'config.php';
 //error_reporting(0);
+include_once '..' . DIRECTORY_SEPARATOR . 'config.php';
 define('IM_ROOT', dirname(__FILE__).DIRECTORY_SEPARATOR);
 include_once(dirname(dirname(IM_ROOT)).DIRECTORY_SEPARATOR.'common.php');
 include_once(IM_ROOT . "json.php");
@@ -88,7 +87,8 @@ function gp($key = '',$def = null) {
 function nick($sp) {
     global $_IMC;
     //return $sp{$_IMC['buddy_name']};
-    return (!$_IMC['show_realname']||empty($sp['name'])) ? $sp['username'] : $sp['name'];
+    $_nick=(!$_IMC['show_realname']||empty($sp['name'])) ? $sp['username'] : $sp['name'];
+    return to_unicode(to_utf8(($_nick)));
 }
 
 function to_utf8($s) {
@@ -121,8 +121,8 @@ function ids_except($id, $ids) {
     }
     return $ids;
 }
-function im_table($name){
-     return "`webim_".$name."`";
+function im_table($name) {
+    return "`webim_".$name."`";
 }
 
 function im_tname($name) {
@@ -138,39 +138,46 @@ if(empty($_SGLOBAL['supe_uid'])) {
     $space = getspace($_SGLOBAL['supe_uid']);
 }
 $groups = getfriendgroup();
+
 function build_buddies($buddies) {
     $_buddies = array();
     foreach($buddies as $name=>$show)
-        $_buddies[$name]=array('id'=>$name,'show'=>$show,'need_reload'=>true);
+        $_buddies[]=array('id'=>$name,'show'=>$show,'need_reload'=>true,'presence'=>"online");
     return $_buddies;
 }
 
+//$ids="licangcai,qiukh"
 function find_buddy($ids) {
     global $_SGLOBAL,$_IMC,$space, $groups;
     $ids = ids_array($ids);
     $ids = ids_except($space['username'], $ids);
     if(empty($ids))return array();
-    $ids = join(',', $ids);
+    $ids = join("','", $ids);
     $buddies = array();
-    $query = $_SGLOBAL['db']-> query("SELECT main.uid, main.username, main.name, f.gid, f.fuid
-                FROM ".tname('space')." main
-                LEFT OUTER JOIN ".tname('friend')." f ON f.uid = '$space[uid]' AND main.uid = f.fuid
-                WHERE main.username IN ('$ids')");
-
+    $q="SELECT main.uid, main.username, main.name, f.gid, f.fuid FROM "
+            .tname('space')
+            ." main LEFT OUTER JOIN "
+            .tname('friend')
+            ." f ON f.uid = '$space[uid]' AND main.uid = f.fuid WHERE main.username IN ('$ids')";
+    $query = $_SGLOBAL['db']-> query($q);
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
 //                realname_set($value['uid'], to_utf8($value['username']));
         $id = $value['username'];
         $nick = nick($value);
-        $group = empty($value['fuid']) ? "stranger" : null;
         if(empty($value['fuid'])) {
             $group = "stranger";
         }else {
             $gid = $value['gid'];
             $group = (empty($gid) || empty($groups[$gid])) ? "friend" : $groups[$gid];
         }
-        //$jid = $id.'@'.$_IMC['domain'];
-        //$status_time = empty($value['dateline'])?'':sgmdate('',$value['dateline'],1);
-        $buddies[$id]=array('id'=>$id,'nick'=> to_utf8($nick),'pic_url' =>user_pic($value['uid']), 'status'=>'' ,'status_time'=>'','url'=>'space.php?uid='.$value['uid'],'group'=> $group, 'default_pic_url' => UC_API.'/images/noavatar_small.gif');
+        $buddies[]=array('id'=>$id,
+                'nick'=> to_utf8($nick),
+                'pic_url' =>user_pic($value['uid']),
+                'status'=>'' ,
+                'status_time'=>'',
+                'url'=>'space.php?uid='.$value['uid'],
+                'group'=> $group,
+                'default_pic_url' => UC_API.'/images/noavatar_small.gif');
     }
     return $buddies;
 }
@@ -189,7 +196,13 @@ function find_room() {
         $eid = 'channel:'.$id.'@'.$_IMC['domain'];
         $tagname = $value['tagname'];
         $pic = empty($value['pic']) ? 'image/nologo.jpg' : $value['pic'];
-        $rooms[$id]=array('id'=>$id,'nick'=> to_utf8($tagname), 'pic_url'=>$pic, 'status'=>'','status_time'=>'', 'all_count' => $value['membernum'], 'url'=>'space.php?do=mtag&tagid='.$tagid);
+        $rooms[$id]=array('id'=>$id,
+                          'nick'=> to_utf8($tagname),
+                          'pic_url'=>$pic,
+                          'status'=>'',
+                          'status_time'=>'',
+                          'all_count' => $value['membernum'],
+                          'url'=>'space.php?do=mtag&tagid='.$tagid);
     }
     return $rooms;
 }
@@ -197,28 +210,33 @@ function find_room() {
 
 function find_new_message() {
     global $_SGLOBAL,$_IMC,$space;
-    $uid = $space['uid'];
+    $uname = $space['username'];
     $messages = array();
     $ids = array();
     $_SGLOBAL['db']->query("SET NAMES " . UC_DBCHARSET);
-    $query = $_SGLOBAL['db']->query("SELECT * FROM ".im_tname('histories')." WHERE `to`='$uid' and send = 0 ORDER BY timestamp DESC LIMIT 100");
+    $query = $_SGLOBAL['db']->query("SELECT * FROM "
+                            .im_tname('histories')
+                            ." WHERE `to`='$uname' and send = 0 ORDER BY timestamp DESC LIMIT 100");
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
-        array_unshift($messages,array('to'=>$value['to'],'from'=>$value['from'],'style'=>$value['style'],'body'=>to_utf8($value['body']),'timestamp'=>$value['timestamp'], 'type' =>$value['type'], 'new' => 1));
+        array_unshift($messages,array('to'=>$value['to'],
+                                      'nick'=>$value['nick'],
+                                      'from'=>$value['from'],
+                                      'style'=>$value['style'],
+                                      'body'=>to_utf8($value['body']),
+                                      'timestamp'=>$value['timestamp'],
+                                      'type' =>$value['type']));
     }
     return $messages;
 }
 
-
-
 function new_message_to_histroy() {
     global $_SGLOBAL,$_IMC,$space;
-    $uname = $space['uname'];
-    $_SGLOBAL['db']->query("UPDATE ".im_tname('histories')." SET send=1 WHERE `from`='$uname' AND send = 0");
+    $uname = $space['username'];
+//    var_dump("UPDATE ".im_tname('histories')." SET send = 1 WHERE `to`='$uname' AND send = 0");
+    $_SGLOBAL['db']->query("UPDATE ".im_tname('histories')." SET send = 1 WHERE `to`='$uname' AND send = 0");
 }
 
-//$uid = $space['uid'] : current user
-//$id : user communacated with current user 
-function find_history($ids,$type) {
+function find_history($ids,$type="unicast") {
     global $_SGLOBAL,$_IMC,$space;
     $_SGLOBAL['db']->query("SET NAMES " . UC_DBCHARSET);
     $uname= $space['username'];
@@ -230,11 +248,8 @@ function find_history($ids,$type) {
         $id = $ids[$i];
         $list = array();
         if($type == 'broadcast') {
-            $query = $_SGLOBAL['db']->query(
-                    "SELECT * FROM ".im_tname('histories') .
-                    " WHERE (`type`='broadcast') and
-				send = 1 ORDER BY timestamp DESC LIMIT 30");
-
+            $query = $_SGLOBAL['db']->query("SELECT * FROM ".im_tname('histories') .
+                    " WHERE (`type`='broadcast') and send = 1 ORDER BY timestamp DESC LIMIT 30");
             while ($value = $_SGLOBAL['db']->fetch_array($query)) {
                 array_unshift($list,
                         array('to'=>$value['to'],
@@ -242,18 +257,15 @@ function find_history($ids,$type) {
                         'style'=>$value['style'],
                         'body'=>to_utf8($value['body']),
                         'timestamp'=>$value['timestamp'],
-                        'type' =>$value['type'], 'new' => 0));
+                        'type' =>$value['type'], 'new' => 0)
+                        );
             }
         }
         //get group message
-//        else if(((int)$id) < $_IMC['room_id_pre']) {
         else if($type=='multicast') {
-            $query = $_SGLOBAL['db']->query(
-                    "SELECT * FROM ".im_tname('histories') .
-                    " WHERE (`from`='$id' and `to`='$uname' and `todel`!=1) or
-				(`from`='$uname' and `to`='$id' and `fromdel`!=1) and
-				send = 1 ORDER BY timestamp DESC LIMIT 30");
-
+            $q="SELECT * FROM ".im_tname('histories')
+                    . " WHERE (`to`='$id') AND (`type`='multicast') AND send = 1 ORDER BY timestamp DESC LIMIT 30";
+            $query = $_SGLOBAL['db']->query($q);
             while ($value = $_SGLOBAL['db']->fetch_array($query)) {
                 array_unshift($list,
                         array('to'=>$value['to'],
@@ -262,19 +274,16 @@ function find_history($ids,$type) {
                         'body'=>to_utf8($value['body']),
                         'timestamp'=>$value['timestamp'],
                         'type' =>$value['type'],
-                        'new' => 0));
+                        'nick'=>$value['nick']));
             }
         }
         //get personal message
         else {
-
-            $q=  "SELECT main.* FROM " . im_tname('histories') . " main WHERE (`to`='$id' AND `from`='$uname' AND `fromdel` != 1) or (`from`='$id' AND `to`='$uname' AND `todel` != 1)  ORDER BY timestamp DESC LIMIT 30";
-
-
+            $q=  "SELECT main.* FROM "
+            . im_tname('histories')
+            . " main WHERE (`send`=1) AND ((`to`='$id' AND `from`='$uname' AND `fromdel` != 1) or (`from`='$id' AND `to`='$uname' AND `todel` != 1))  ORDER BY timestamp DESC LIMIT 30";
             $query = $_SGLOBAL['db']->query($q);
-          
             while ($value = $_SGLOBAL['db']->fetch_array($query)) {
-            
                 array_unshift($list,
                         array('to'=>$value['to'],
                         'nick'=>$value['nick'],
@@ -285,7 +294,7 @@ function find_history($ids,$type) {
                         'timestamp'=>$value['timestamp']));
             }
         }
-       
+
     }
     return $list;
 }
