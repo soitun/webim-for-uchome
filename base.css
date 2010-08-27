@@ -2,6 +2,16 @@ body{
 	margin: 0;
 	font-size: 12px;
 }
+
+img{
+	border: none;
+}
+
+#wrap{
+	margin: 0 auto;
+	width: 800px;
+	overflow: hidden;
+}
 h1{
 	font-size: 24px;
 	margin: 0;
@@ -92,4 +102,68 @@ a:hover{
 	border-top: 1px solid #e5e5e5;
 	padding: 0 20px;
 	text-align: right;
+}
+
+#menu{
+	margin-top: 20px;
+	margin-bottom: 100px;
+	padding: 30px 0 50px;
+	width: 90px;
+	border-right: 1px solid #ddd;
+	float: left;
+}
+
+#menu ul{
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+#menu ul li{
+	padding: 0;
+	margin: 0;
+}
+
+#menu ul li a{
+	display: block;
+	padding: 5px 10px;
+}
+
+#menu ul li.current a{
+	background: #FFF8DC;
+}
+
+#content{
+	float: right;
+	width: 700px;
+}
+
+#notice{
+	margin-top: 20px;
+	padding: 10px;
+	text-align: center;
+	background: #FFFAF0;
+	border: 1px solid #FFD700;
+}
+#themes{
+	overflow: hidden;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	margin-top: 20px;
+}
+#themes li{
+	float: left;
+	padding: 10px;
+}
+#themes li h4{
+	margin: 0 0 5px 0;
+}
+
+#themes li.current{
+	background: yellow;
+}
+
+#header-title{
+	margin: 30px 10px 0;
 }

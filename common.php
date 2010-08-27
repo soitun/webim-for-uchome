@@ -10,7 +10,7 @@ if(empty($_SGLOBAL['supe_uid'])) {
     $is_login = true;
     $space = getspace($_SGLOBAL['supe_uid']);
 }
-if(!$is_login)exit();
+if(!$is_login)exit('Login at first.');
 $user->uid =$space['uid'];
 $user->id = to_utf8($space['username']);
 $user->nick = to_utf8($space['username']);
