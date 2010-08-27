@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Wed Aug 25 19:02:25 2010 +0800
- * Commit: 3018296b07069b9b2cfd1e1a3c56d82deed3f0d8
+ * Date: Fri Aug 27 16:54:47 2010 +0800
+ * Commit: 67ceb33bdf89213a903a9f1bce8770be69f992ae
  */
 (function(window, document, undefined){
 
@@ -1021,7 +1021,7 @@ extend(webim.prototype, objectExtend,{
 			history.init("unicast", v.id, v.history);
 		});
 		buddy.online(ids);
-		buddy.handle(data.buddies);
+		buddy.handle(buddies);
 		//rooms
 		each(data.rooms, function(n, v){
 			history.init("multicast", v.id, v.history);
@@ -1272,7 +1272,7 @@ model("setting",{
 		blocked_rooms: [],
 		play_sound:true,
 		buddy_sticky:true,
-		minimize_layout: false,
+		minimize_layout: true,
 		msg_auto_pop:true
 	}
 },{
@@ -1811,8 +1811,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Wed Aug 25 19:02:03 2010 +0800
- * Commit: 6f6386d9eba9eaaab5331603d69681e5d6974040
+ * Date: Fri Aug 27 16:55:24 2010 +0800
+ * Commit: c26d6d5065a0250ec048a4ec1158ba49937ae0c7
  */
 (function(window,document,undefined){
 
