@@ -1,6 +1,5 @@
 <?php
-$configRoot = '..' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR ;
-include_once($configRoot . 'uchome.php');
+include_once('common.php');
 $username = $space['username'];
 $ids = ids_array(gp("id"));
 if(!empty($ids)) {

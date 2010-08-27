@@ -1,5 +1,6 @@
 <?php
 //error_reporting(0);
+//require 'webim.class.php';
 include_once '..' . DIRECTORY_SEPARATOR . 'config.php';
 define('IM_ROOT', dirname(__FILE__).DIRECTORY_SEPARATOR);
 include_once(dirname(dirname(IM_ROOT)).DIRECTORY_SEPARATOR.'common.php');
@@ -12,34 +13,34 @@ function user_pic($uid) {
     return avatar($uid,"small",true);
 }
 
-function id_to_name($id) {
-    global $_SGLOBAL;
-    $query=$_SGLOBAL['db']-> query("SELECT username FROM ".tname('space')." WHERE uid =$id");
-    $value = $_SGLOBAL['db']->fetch_array($query);
-    return $value['username'];
-}
-
-function name_to_id($name) {
-    global $_SGLOBAL;
-    $query=$_SGLOBAL['db']-> query("SELECT uid FROM ".tname('space')." WHERE username = '$name' ");
-    $value = $_SGLOBAL['db']->fetch_array($query);
-    return $value['uid'];
-}
-
-function names_to_ids($names) {
-    $names_ary=ids_array($names);
-    foreach($names_ary as $n) {
-        $ids[]=name_to_id($n);
-    }
-    return join(",",$ids);
-}
-function ids_to_names($ids) {
-    $ids_ary=ids_array($ids);
-    foreach($ids_ary as $id) {
-        $names[]=id_to_name($id);
-    }
-    return join(",",$names);
-}
+//function id_to_name($id) {
+//    global $_SGLOBAL;
+//    $query=$_SGLOBAL['db']-> query("SELECT username FROM ".tname('space')." WHERE uid =$id");
+//    $value = $_SGLOBAL['db']->fetch_array($query);
+//    return $value['username'];
+//}
+//
+//function name_to_id($name) {
+//    global $_SGLOBAL;
+//    $query=$_SGLOBAL['db']-> query("SELECT uid FROM ".tname('space')." WHERE username = '$name' ");
+//    $value = $_SGLOBAL['db']->fetch_array($query);
+//    return $value['uid'];
+//}
+//
+//function names_to_ids($names) {
+//    $names_ary=ids_array($names);
+//    foreach($names_ary as $n) {
+//        $ids[]=name_to_id($n);
+//    }
+//    return join(",",$ids);
+//}
+//function ids_to_names($ids) {
+//    $ids_ary=ids_array($ids);
+//    foreach($ids_ary as $id) {
+//        $names[]=id_to_name($id);
+//    }
+//    return join(",",$names);
+//}
 
 
 function _iconv($s,$t,$data) {
@@ -86,7 +87,6 @@ function gp($key = '',$def = null) {
 
 function nick($sp) {
     global $_IMC;
-    //return $sp{$_IMC['buddy_name']};
     $_nick=(!$_IMC['show_realname']||empty($sp['name'])) ? $sp['username'] : $sp['name'];
     return to_unicode(to_utf8(($_nick)));
 }
@@ -120,9 +120,6 @@ function ids_except($id, $ids) {
         array_splice($ids, array_search($id, $ids), 1);
     }
     return $ids;
-}
-function im_table($name) {
-    return "`webim_".$name."`";
 }
 
 function im_tname($name) {
@@ -193,7 +190,6 @@ function find_room() {
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
         $tagid = $value['tagid'];
         $id = (string)($_IMC['room_id_pre'] + $tagid);
-        $eid = 'channel:'.$id.'@'.$_IMC['domain'];
         $tagname = $value['tagname'];
         $pic = empty($value['pic']) ? 'image/nologo.jpg' : $value['pic'];
         $rooms[$id]=array('id'=>$id,
@@ -212,7 +208,6 @@ function find_new_message() {
     global $_SGLOBAL,$_IMC,$space;
     $uname = $space['username'];
     $messages = array();
-    $ids = array();
     $_SGLOBAL['db']->query("SET NAMES " . UC_DBCHARSET);
     $query = $_SGLOBAL['db']->query("SELECT * FROM "
                             .im_tname('histories')

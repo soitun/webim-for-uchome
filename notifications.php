@@ -1,6 +1,5 @@
 <?php 
-$configRoot = '..' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR ;
-include_once($configRoot . 'uchome.php');
+include_once('common.php');
 include_once S_ROOT.'./uc_client/client.php';
 
 $page = max($page, 1);
