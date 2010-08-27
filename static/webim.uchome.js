@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Sat Aug 21 20:03:19 2010 +0800
- * Commit: 8fd80daf892b99bb18815d29c95e941ede8d6248
+ * Date: Fri Aug 27 16:54:47 2010 +0800
+ * Commit: 67ceb33bdf89213a903a9f1bce8770be69f992ae
  */
 (function(window, document, undefined){
 
@@ -984,17 +984,21 @@ function webim(element, options){
 }
 
 extend(webim.prototype, objectExtend,{
-	_init:function(){
+	_init: function(){
 		var self = this;
-		self.data = {user:{}};
+		var user = {};
+		self.data = {user: user};
 		self.status = new webim.status();
 		self.setting = new webim.setting();
 		self.buddy = new webim.buddy(null, {loadDelay: !self.status.get("b")});
-		self.room = new webim.room();
-		self.history = new webim.history();
+		self.room = new webim.room(null, {user: user});
+		self.history = new webim.history(null, {user: user});
 		self.connection = new comet(null,{jsonp:true});
 		self._initEvents();
 		//self.online();
+	},
+	user: function(info){
+		extend(this.data.user, info);
 	},
 	_ready: function(post_data){
 		var self = this;
@@ -1029,7 +1033,9 @@ extend(webim.prototype, objectExtend,{
 		});
 		room.handle(roomData);
 		room.options.ticket = data.connection.ticket;
-		//handle new messages
+		self.trigger("go",[data]);
+		self.connection.connect(data.connection);
+		//handle new messages at last
 		var n_msg = data.new_messages;
 		if(n_msg && n_msg.length){
 			each(n_msg, function(n, v){
@@ -1037,8 +1043,6 @@ extend(webim.prototype, objectExtend,{
 			});
 			self.trigger("message",[n_msg]);
 		}
-		self.trigger("go",[data]);
-		self.connection.connect(data.connection);
 	},
 	_stop: function(msg){
 		var self = this;
@@ -1265,9 +1269,10 @@ extend(webim,{
 model("setting",{
 	url: "/webim/setting",
 	data: {
+		blocked_rooms: [],
 		play_sound:true,
 		buddy_sticky:true,
-		minimize_layout: false,
+		minimize_layout: true,
 		msg_auto_pop:true
 	}
 },{
@@ -1475,6 +1480,7 @@ model("buddy", {
 		if(ids.length){
 			var self = this, options = self.options;
 			ajax({
+				type: "get",
 				url: options.url,
 				cache: false,
 				dataType: "json",
@@ -1642,6 +1648,7 @@ model("buddy", {
 		loadMember: function(id){
 			var self = this, options = self.options;
 			ajax({
+				type: "get",
 				cache: false,
 				url: options.urls.member,
 				dataType: "json",
@@ -1654,10 +1661,12 @@ model("buddy", {
 				}
 			});
 		},
-		join:function(id,user){
-			var self = this, options = self.options;
+		join:function(id){
+			var self = this, options = self.options, user = options.user;
+
 			ajax({
 				cache: false,
+				type: "post",
 				url: options.urls.join,
 				dataType: "json",
 				data: {
@@ -1672,12 +1681,13 @@ model("buddy", {
 				}
 			});
 		},
-		leave: function(id,user){
-			var self = this, options = self.options, d = self.dataHash[id];
+		leave: function(id){
+			var self = this, options = self.options, d = self.dataHash[id], user = options.user;
 			if(d){
 				d.initMember = false;
 				ajax({
 					cache: false,
+					type: "post",
 					url: options.urls.leave,
 					data: {
 						ticket: options.ticket,
@@ -1764,6 +1774,7 @@ model("history",{
 		self.trigger("clear", [type, id]);
 		ajax({
 			url: options.urls.clear,
+			type: "post",
 			cache: false,
 			//dataType: "json",
 			data:{ type: type, id: id}
@@ -1782,6 +1793,7 @@ model("history",{
 		ajax({
 			url: options.urls.load,
 			cache: false,
+			type: "get",
 			dataType: "json",
 			data:{type: type, id: id},
 			//context: self,
@@ -1799,8 +1811,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Mon Aug 23 18:01:36 2010 +0800
- * Commit: 8a2965cf8b86eb8276392793f26c3ca604cbf1c0
+ * Date: Fri Aug 27 16:55:24 2010 +0800
+ * Commit: c26d6d5065a0250ec048a4ec1158ba49937ae0c7
  */
 (function(window,document,undefined){
 
@@ -3235,11 +3247,15 @@ widget("layout",{
 		addEvent($.prev,"mouseup", function(){self._slideUp();});
 		disableSelection($.prev);
 		addEvent($.expand, "click", function(){
+			if(!self.isMinimize()) return false;
 			self.expand();
+			self.trigger("expand");
 			return false;
 		});
 		addEvent($.collapse, "click", function(){
+			if(self.isMinimize()) return false;
 			self.collapse();
+			self.trigger("collapse");
 			return false;
 		});
 		hoverClass($.collapse, "ui-state-hover", "ui-state-default");
@@ -3252,13 +3268,11 @@ widget("layout",{
 		var self = this;
 		if(self.isMinimize()) return;
 		addClass(this.$.layout, "webim-layout-minimize");
-		self.trigger("collapse");
 	},
 	expand: function(){
 		var self = this;
 		if(!self.isMinimize()) return;
 		removeClass(self.$.layout, "webim-layout-minimize");
-		self.trigger("expand");
 	},
 	_displayUpdate:function(e){
 		this._ready && this.trigger("displayUpdate");
@@ -4108,6 +4122,9 @@ widget("setting",{
 	template: function(){
 		var self = this, temp = [], data = self.options.data;
 		data && each(data, function(key, val){
+			if(val && typeof val != "boolean") {
+				return;
+			}
 			temp.push(self._check_tpl(key, val));
 		});
 		return tpl(self.options.template,{
@@ -4158,7 +4175,7 @@ widget("setting",{
 			return;
 		}
 		var $ = self.$, tag = $[name];
-		if(isChecked && typeof isChecked == "boolean") {
+		if(isChecked && typeof isChecked != "boolean") {
 			return;
 		}
 		if(tag){
@@ -4333,6 +4350,7 @@ app("buddy", {
 		}).bind("presence", function(params){
 			im.sendPresence(params);
 		});
+		buddyUI.user.update(im.data.user);
 	},
 	ready: function(){
 		var ui = this, im = ui.im, buddy = im.buddy, buddyUI = ui.buddy;
@@ -4340,7 +4358,6 @@ app("buddy", {
 	},
 	go: function(){
 		var ui = this, im = ui.im, buddy = im.buddy, buddyUI = ui.buddy;
-		!buddyUI.window.isMinimize() && buddy.loadDelay();
 		buddyUI.notice("count", buddy.count({presence:"online"}));
 		buddyUI.user.update(im.data.user);
 	},
@@ -4617,11 +4634,11 @@ app("room",{
 		}).bind("block", function(id, list){
 			setting.set("blocked_rooms",list);
 			updateRoom(room.get(id));
-			room.leave(id,u);
+			room.leave(id);
 		}).bind("unblock", function(id, list){
 			setting.set("blocked_rooms",list);
 			updateRoom(room.get(id));
-			room.join(id,u);
+			room.join(id);
 		}).bind("addMember", function(room_id, info){
 			var c = layout.chat("room", room_id);
 			c && c.addMember(info.id, info.nick, info.id == im.data.user.id);
