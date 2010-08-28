@@ -24,14 +24,14 @@ if(!empty($friend_ids)) {
     $ids=join(",",$friend_ids);
     $query = $_SGLOBAL['db']-> query("SELECT username FROM ".tname('space')." WHERE uid IN ($ids)");
     while ($value = $_SGLOBAL['db']->fetch_array($query)) {
-        $buddie_ids[] = $value['username'];
+        $buddy_ids[] = $value['username'];
 
     }
 }
-$buddie_ids=array_unique($buddie_ids);
+$buddy_ids=array_unique($buddy_ids);
 
 $im = new WebIM($user, null, $_IMC['domain'], $_IMC['apikey'], $_IMC['host'], $_IMC['port']);
-$data = $im->online(implode(",",$buddie_ids), implode(",", $room_ids));
+$data = $im->online(implode(",",$buddy_ids), implode(",", $room_ids));
 if($data->success) {
     $_rooms=array();
     //Add room online member count.
@@ -40,10 +40,36 @@ if($data->success) {
         $rooms[$id]['count'] = $v->count;
         $_rooms[]=$rooms[$id];
     }
-  
+ $buddylist=array();
+    $_buddies=buddy($buddy_ids);
+
+    if(!empty($_buddies)) {
+	        foreach($_buddies as $buddy) {
+		                $buddy['show']="unavailable";
+			          $buddy['need_reload']=false;
+			          $buddy['presence']="offline";
+			            foreach($data->buddies as $online_buddy) {
+				                if(!(in_array($online_buddy->id,$buddy_ids))) {
+					                      $buddylist[]=$online_buddy;
+					                    }
+			                if($buddy['id']==$online_buddy->id) {
+			                 $buddy['show']=$online_buddy->show;
+		                  $buddy['need_reload']=$online_buddy->need_reload;
+		                 $buddy['presence']=$online_buddy->presence;
+		              }
+
+		          }
+            $buddylist[]=$buddy;
+      }
+  }
+  else {
+            $buddylist=(array)$data->buddies;
+    }
+
+
     $data->rooms = $_rooms;
-    $online_buddies=build_buddies($data->buddies);
-    $data->buddies=array_merge($online_buddies,buddy($buddy_ids));
+    //$online_buddies=build_buddies($data->buddies);
+    $data->buddies= $buddylist;
     $data->histories=find_history($buddy_ids);
     $data->new_messages=$new_messages;
     echo json_encode($data);
