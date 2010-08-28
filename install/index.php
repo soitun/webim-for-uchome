@@ -59,7 +59,9 @@ EOF;
 	</head>
 	<body>
 		<h1>WebIM For UChome安装</h1>
-		<?php echo $msg; ?>
+		<div id="wrap">
+			<?php echo $msg; ?>
+		</div>
 		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
 	</body>
 </html>
