@@ -3,7 +3,7 @@
 include_once('common.php');
 if(!ckfounder($user->uid)){
 	//is not admin
-	exit('请用管理员帐号登录。');
+	exit('Please login as admin.');
 }
 if(!isset($_IMC)){
 	header("Location: install/index.php");
