@@ -16,7 +16,7 @@ $user->id = to_utf8($space['username']);
 $user->nick = to_utf8($space['username']);
 $user->pic_url = avatar($user->uid,"small",true);
 $user->default_pic_url=UC_API.'/images/noavatar_small.gif';
-$user->show = gp('show') ? gp('show') : "unavailable";
+$user->show = gp('show') ? gp('show') : "available";
 $user->url = "space.php?uid=".$user->uid;
 
 $groups = getfriendgroup();
