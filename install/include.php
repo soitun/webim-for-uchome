@@ -1,11 +1,5 @@
 <?php
 define('IM_ROOT', dirname(dirname(__FILE__)));
-include_once(IM_ROOT.DIRECTORY_SEPARATOR.'common.php');
-if(!ckfounder($user->uid)){
-	//is not admin
-	exit('Please login as admin.');
-}
-
 include_once(IM_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'install.php');
 define('PRODUCT_ROOT', dirname(IM_ROOT));
 $im_config_file = IM_ROOT.DIRECTORY_SEPARATOR.'config.php';

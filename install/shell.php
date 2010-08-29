@@ -1,4 +1,5 @@
 <?php
+if(php_sapi_name() != 'cli') exit("Run it with commmand `php -f shell.php`");
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include.php');
 $msg = "";
 if(!empty($unwritable_paths)){

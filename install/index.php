@@ -1,6 +1,12 @@
 <?php
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include.php');
+include_once(IM_ROOT.DIRECTORY_SEPARATOR.'common.php');
+if(!ckfounder($user->uid)){
+	//is not admin
+	exit('Please login as admin.');
+}
 $msg = "";
+$success = false;
 if(!empty($unwritable_paths)){
 	$msg = unwritable_log($unwritable_paths, $subpathlen, true);
 }elseif(!is_db_connectable($db_config)){
@@ -18,6 +24,7 @@ if(!empty($unwritable_paths)){
 		$logs = array_merge($logs, install_db($db_config, $db_file));
 		$logs = array_merge($logs, clean_cache($cache_dir));
 		$msg = log_install($logs, $subpathlen, true);
+		$success = true;
 	}else{
 		$msg = config_html($_IMC);
 	}
@@ -63,6 +70,10 @@ EOF;
 			<?php echo $msg; ?>
 		</div>
 		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
+		<?php if($success): ?>
+		<script type="text/javascript">
+			setTimeout(function(){window.location.href = "../index.php";}, 2000);
+		</script>
+		<?php endif; ?>
 	</body>
 </html>
-
