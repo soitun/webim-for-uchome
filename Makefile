@@ -30,6 +30,7 @@ ${CACHE_DIR}: ${LIB_DIR}/webim.class.php
 	@@echo "Copy source"
 	@@cp -r ${SRC_FILES} ${CACHE_DIR}
 	@@rm -rf ${CACHE_DIR}/lib/.git
+	@@rm -rf ${CACHE_DIR}/config.php
 	@@echo "Change version"
 	@@cat ${SRC_DIR}/install/config.php | ${REPLACE_VER} > ${CACHE_DIR}/install/config.php
 
