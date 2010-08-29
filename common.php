@@ -1,7 +1,7 @@
 <?php
-require 'lib/webim.class.php';
-include_once('../common.php');
-include_once("lib/json.php");
+require_once('lib/webim.class.php');
+require_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'common.php');
+require_once("lib/json.php");
 
 $is_login = false;
 if(empty($_SGLOBAL['supe_uid'])) {
