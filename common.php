@@ -76,8 +76,22 @@ function online_buddy(){
 }
 
 
-function complete_status() {
+function complete_status($members){
+	if(!empty($members)){                
+		$num = count($members);                
+		$ids = array();
+		$ob = array();
+		for($i = 0; $i < $num; $i++){
+			$m = $members[$i];
+			$id = $m->uid;
+			$ids[] = $id;
+			$ob[$id] = $m;
+			$m->status = "";
+		}
+	}
+	return $members;
 }
+
 //$ids="licangcai,qiukh"
 function buddy($ids) {
     global $_SGLOBAL,$space, $groups;
