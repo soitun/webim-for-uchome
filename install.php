@@ -1,5 +1,5 @@
 <?php
-include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include.php');
+include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'include.php');
 include_once(IM_ROOT.DIRECTORY_SEPARATOR.'common.php');
 if(!ckfounder($user->uid)){
 	//is not admin
@@ -62,7 +62,7 @@ EOF;
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>WebIM For UChome安装</title>
-		<link href="../base.css" media="all" type="text/css" rel="stylesheet" />
+		<link href="base.css" media="all" type="text/css" rel="stylesheet" />
 	</head>
 	<body>
 		<h1>WebIM For UChome安装</h1>
@@ -72,7 +72,7 @@ EOF;
 		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
 		<?php if($success): ?>
 		<script type="text/javascript">
-			setTimeout(function(){window.location.href = "../index.php";}, 2000);
+			setTimeout(function(){window.location.href = "index.php";}, 2000);
 		</script>
 		<?php endif; ?>
 	</body>

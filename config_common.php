@@ -6,7 +6,7 @@ if(!ckfounder($user->uid)){
 	exit('Please login as admin.');
 }
 if(!isset($_IMC)){
-	header("Location: install/index.php");
+	header("Location: install.php");
 	exit();
 }
 define('IM_ROOT', dirname(__FILE__));

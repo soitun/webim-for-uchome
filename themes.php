@@ -37,6 +37,6 @@ $html .= '</ul>';
 				<?php echo $html;?>
 			</div>
 		</div>
-		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
+		<div id="footer"><p> <a href="uninstall.php">卸载</a> | <a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
 	</body>
 </html>
