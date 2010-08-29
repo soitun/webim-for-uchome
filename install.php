@@ -69,7 +69,7 @@ EOF;
 		<div id="wrap">
 			<?php echo $msg; ?>
 		</div>
-		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
+		<div id="footer"><p><a href="http://www.webim20.cn">© 2010 NextIM</a></p></div>
 		<?php if($success): ?>
 		<script type="text/javascript">
 			setTimeout(function(){window.location.href = "index.php";}, 2000);

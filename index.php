@@ -22,7 +22,7 @@ include('config_common.php');
 				<div class="box">
 				<h3>更新基本配置</h3>
 				<div class="box-c">
-					<p class="box-desc">请先到NextIM网站注册</p>
+				<p class="box-desc">apikey需要到<a href="http://www.webim20.cn" target="_blank">webim20.cn</a>注册</p>
 					<form action="" method="post" class="form">
 						<p><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="<?php echo $_IMC['host']; ?>" name="host"/><span class="help">IM服务器地址</span></p>
 						<p><label for="port">服务器端口：</label><input class="text" type="text" id="port" value="<?php echo $_IMC['port']; ?>" name="port"/></p>
@@ -41,7 +41,7 @@ include('config_common.php');
 
 			</div>
 		</div>
-		<div id="footer"><p> <a href="uninstall.php">卸载</a> | <a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
+		<div id="footer"><p> <a href="uninstall.php">卸载</a> | <a href="http://www.webim20.cn">© 2010 NextIM</a></p></div>
 	</body>
 </html>
 
