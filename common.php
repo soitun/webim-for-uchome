@@ -56,6 +56,26 @@ function build_buddies($buddies) {
     return $_buddies;
 }
 
+function online_buddy(){
+	global $groups, $user, $_SGLOBAL;
+	$list = array();
+	$query = $_SGLOBAL['db']->query("SELECT f.fuid, f.fusername, f.gid FROM ".tname('friend')." f, ".tname('session')." s
+		WHERE f.uid='$user->uid' AND f.fuid = s.uid ORDER BY f.num DESC, f.dateline DESC");
+	while ($value = $_SGLOBAL['db']->fetch_array($query)){
+		$list[] = (object)array(
+			"uid" => $value['fuid'],
+			"id" => to_utf8($value['fusername']),
+			"nick" => to_utf8($value['fusername']),
+			"group" => $groups[$value['gid']],
+			"url" => "home.php?mod=space&uid=".$value['fuid'],
+                	'default_pic_url' => UC_API.'/images/noavatar_small.gif',
+			"pic_url" => avatar($value['fuid'], 'small', true),
+		);
+	}
+	return $list;
+}
+
+
 function complete_status() {
 }
 //$ids="licangcai,qiukh"
@@ -82,7 +102,8 @@ function buddy($ids) {
             $gid = $value['gid'];
             $group = (empty($gid) || empty($groups[$gid])) ? "friend" : $groups[$gid];
         }
-        $buddies[]=array('id'=>$id,
+        $buddies[]=(object)array('uid'=>$id,
+                'id'=> $nick,
                 'nick'=> $nick,
                 'pic_url' =>avatar($value['uid'],"small",true),
                 'status'=>'' ,
@@ -108,7 +129,7 @@ function rooms() {
         $id = $tagid;
         $tagname = $value['tagname'];
         $pic = empty($value['pic']) ? 'image/nologo.jpg' : $value['pic'];
-        $rooms[$id]=array('id'=>$id,
+        $rooms[$id]=(object)array('id'=>$id,
                 'nick'=> to_utf8($tagname),
                 'pic_url'=>$pic,
                 'status'=>'',
