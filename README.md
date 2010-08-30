@@ -14,11 +14,11 @@ WebIM For UChome
 给与安装文件权限
 
 	chmod 777 webim
-	chmod -R 777 webim/install/
+	chmod -R 777 webim/install.php
 
 ###线上安装
 
-1.	浏览器打开webim安装页面。例： uchome地址(http://www.uc.com/home/index.php) -> webim安装地址(http://www.uc.com/home/webim/install/)
+1.	浏览器打开webim安装页面。例： uchome地址(http://www.uc.com/home/index.php) -> webim安装地址(http://www.uc.com/home/webim/install.php)
 
 2.	配置域名，apikey确认
 
