@@ -7,6 +7,28 @@ img{
 	border: none;
 }
 
+/*
+clearfix：处理float左右布局。清除浮动
+ */ 
+.clearfix:after{
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+.clearfix{
+	display: inline-block;
+}
+.clearfix{
+	display: block;
+}
+* html .clearfix{
+	height: 1%;
+}
+
+
 #wrap{
 	margin: 0 auto;
 	width: 800px;

@@ -24,17 +24,17 @@ include('config_common.php');
 				<div class="box-c">
 				<p class="box-desc">apikey需要到<a href="http://www.webim20.cn" target="_blank">webim20.cn</a>注册</p>
 					<form action="" method="post" class="form">
-						<p><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="<?php echo $_IMC['host']; ?>" name="host"/><span class="help">IM服务器地址</span></p>
-						<p><label for="port">服务器端口：</label><input class="text" type="text" id="port" value="<?php echo $_IMC['port']; ?>" name="port"/></p>
-						<p><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="<?php echo $_IMC['domain']; ?>" name="domain"/><span class="help">网站注册域名</span></p>
-						<p><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="<?php echo $_IMC['apikey']; ?>" name="apikey"/></p>
-						<p><label for="local">本地语言：</label><select class="select" id="local" name="local">
+						<p class="clearfix"><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="<?php echo $_IMC['host']; ?>" name="host"/><span class="help">IM服务器地址</span></p>
+						<p class="clearfix"><label for="port">服务器端口：</label><input class="text" type="text" id="port" value="<?php echo $_IMC['port']; ?>" name="port"/></p>
+						<p class="clearfix"><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="<?php echo $_IMC['domain']; ?>" name="domain"/><span class="help">网站注册域名</span></p>
+						<p class="clearfix"><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="<?php echo $_IMC['apikey']; ?>" name="apikey"/></p>
+						<p class="clearfix"><label for="local">本地语言：</label><select class="select" id="local" name="local">
 						<option value="zh-CN" <?php echo $_IMC['local'] == 'zh-CN' ? 'selected="selected"' : '' ?>>简体中文</option>
 						<option value="zh-TW" <?php echo $_IMC['local'] == 'zh-TW' ? 'selected="selected"' : '' ?>>繁体中文</option>
 						<option value="en" <?php echo $_IMC['local'] == 'en' ? 'selected="selected"' : '' ?>>English</option>
 						</select>
 						</p>
-						<p class="actions"><input type="submit" class="submit" value="提交" /></p>
+						<p class="actions clearfix"><input type="submit" class="submit" value="提交" /></p>
 					</form>
 				</div>
 				</div>

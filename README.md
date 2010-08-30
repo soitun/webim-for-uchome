@@ -28,7 +28,7 @@ WebIM For UChome
 ###手动安装
 
 1.	配置WebIM，将`webim/install/config.php`复制到`webim/config.php`，配置相应参数;
-2.	安装数据库，修改`webim/install/webim.sql`中`@charset`为uchome中配置的`UC_DBCHARSET`，修改`webim_`为uchome中配置`UC_DBTABLEPRE`加`webim_`，在uchome中导入此数据库;
+2.	安装数据库，修改`webim/install/install.sql`中`@charset`为uchome中配置的`UC_DBCHARSET`，修改`webim_`为uchome中配置`UC_DBTABLEPRE`加`webim_`，在uchome中导入此数据库;
 
 3.	加载WebIM配置，在UChome配置文件(home/config.php)中添加`@include_once('webim/config.php');`;
 

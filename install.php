@@ -47,10 +47,10 @@ function config_html($config, $errors = array()){
 			<p class="box-desc">请先到<a href="http://www.webim20.cn" target="_blank">webim20.cn</a>注册apikey网站注册</p>
 			$err
 			<form action="" method="post" class="form">
-				<p><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="$host" name="host"/><span class="help">IM服务器地址</span></p>
-				<p><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="$domain" name="domain"/><span class="help">网站注册域名</span></p>
-				<p><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="$apikey" name="apikey"/></p>
-				<p class="actions"><input type="submit" class="submit" value="提交" /></p>
+				<p class="clearfix"><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="$host" name="host"/><span class="help">IM服务器地址</span></p>
+				<p class="clearfix"><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="$domain" name="domain"/><span class="help">网站注册域名</span></p>
+				<p class="clearfix"><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="$apikey" name="apikey"/></p>
+				<p class="actions clearfix"><input type="submit" class="submit" value="提交" /></p>
 			</form>
 		</div>
 	</div>
