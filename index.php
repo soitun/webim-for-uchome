@@ -34,6 +34,7 @@ include('config_common.php');
 						<option value="en" <?php echo $_IMC['local'] == 'en' ? 'selected="selected"' : '' ?>>English</option>
 						</select>
 						</p>
+						<p class="clearfix"><label for="disable_room">禁止群组聊天：</label><input type="radio" value="1" name="disable_room" class="radio" id="disable_room_yes" <?php echo $_IMC['disable_room'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="disable_room" class="radio" id="disable_room_no" <?php echo $_IMC['disable_room'] ? '0' : 'checked="checked"'; ?>>否</p>
 						<p class="actions clearfix"><input type="submit" class="submit" value="提交" /></p>
 					</form>
 				</div>

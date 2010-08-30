@@ -26,7 +26,7 @@ $notice = "";
 foreach($_IMC as $k => $v){
 	if($k != 'version' && $k != 'enable'){
 		$nv = gp($k);
-		if(!empty($nv)){
+		if(!is_null($nv)){
 			$_IMC[$k] = $nv;
 			$is_edit = true;
 			$notice = "<p id='notice'>更新成功。</p>";
