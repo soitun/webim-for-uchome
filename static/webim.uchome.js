@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Sat Aug 28 19:43:13 2010 +0800
- * Commit: 79741a1eb92f3c500f7e09ceb6437cb45b74a244
+ * Date: Tue Aug 31 18:48:43 2010 +0800
+ * Commit: fddb4b61dd7645a14bc9b0784ff660a691538d8b
  */
 (function(window, document, undefined){
 
@@ -991,7 +991,7 @@ extend(webim.prototype, objectExtend,{
 		self.data = {user: user};
 		self.status = new webim.status();
 		self.setting = new webim.setting();
-		self.buddy = new webim.buddy(null, {loadDelay: !self.status.get("b")});
+		self.buddy = new webim.buddy(null, {active: self.status.get("b")});
 		self.room = new webim.room(null, {user: user});
 		self.history = new webim.history(null, {user: user});
 		self.connection = new comet(null,{jsonp:true});
@@ -1012,17 +1012,11 @@ extend(webim.prototype, objectExtend,{
 	_go: function(){
 		var self = this, data = self.data, history = self.history, buddy = self.buddy, room = self.room;
 		history.option("userInfo", data.user);
-		var ids = [], buddies = [];
+		var ids = [];
 		each(data.buddies, function(n, v){
-			if(v.need_reload){
-				ids.push(v.id);
-			}else{
-				buddies.push(v);
-			}
 			history.init("unicast", v.id, v.history);
 		});
-		buddy.online(ids);
-		buddy.handle(buddies);
+		buddy.handle(data.buddies);
 		//rooms
 		each(data.rooms, function(n, v){
 			history.init("multicast", v.id, v.history);
@@ -1067,7 +1061,7 @@ extend(webim.prototype, objectExtend,{
 			self._stop("disconnect");
 		});
 		self.bind("message", function(data){
-			var online_ids = [], l = data.length, uid = self.data.user.id, v, id, type;
+			var online_buddies = [], l = data.length, uid = self.data.user.id, v, id, type;
 			//When revice a new message from router server, make the buddy online.
 			for(var i = 0; i < l; i++){
 				v = data[i];
@@ -1075,25 +1069,16 @@ extend(webim.prototype, objectExtend,{
 				id = type == "unicast" ? (v.to == uid ? v.from : v.to) : v.to;
 				v["id"] = id;
 				if(type == "unicast" && !v["new"]){
-					online_ids.push(id);
+					online_buddies.push({id: id, presence: "online"});
 				}
 			}
-			if(online_ids.length)buddy.online(online_ids);
+			if(online_buddies.length)buddy.presence(online_buddies);
 			history.handle(data);
 		});
-		function grepOffline(msg){
-			return msg.type == "offline";
-		}
-		function grepOnline(msg){
-			return msg.type == "online";
-		}
-		function mapFrom(a){ return a.from; }
+		function mapFrom(a){ return {id: a.from, presence: a.type, nick: a.nick, show: a.show}; }
 
 		self.bind("presence",function(data){
-			offline = grep(data, grepOffline);
-			online = grep(data, grepOnline);
-			buddy.online(map(online, mapFrom));
-			buddy.offline(map(offline, mapFrom));
+			buddy.presence(map(data, mapFrom));
 			//online.length && buddyUI.notice("buddyOnline", online.pop()["nick"]);
 		});
 	},
@@ -1363,24 +1348,22 @@ model("status",{
 	}
 });
 
-/*
-buddy //联系人
-attributes：
-data []所有信息 readonly 
-methods:
-get(id)
-handle(data) //handle data and distribute events
-online(ids) // 
-loadDelay()
-offline(ids)
-update(ids) 更新用户信息 有更新时触发events:update
+/**
+ * buddy //联系人
+ * attributes：
+ * 	data []所有信息 readonly 
+ * methods:
+ * 	get(id)
+ * 	handle(data) //handle data and distribute events
+ * 	presence(data) //handle buddy presence.
+ * 	complete() //Complete info.
+ * 	update(ids) 更新用户信息 有更新时触发events:update
 
-events:
-online  //  data:[]
-onlineDelay
-offline  //  data:[]
-update 
-*/
+ * events:
+ * 	online  //  data:[]
+ * 	offline  //  data:[]
+ * 	update 
+ */
 
 model("buddy", {
 	url:"/webim/buddy"
@@ -1389,17 +1372,15 @@ model("buddy", {
 		var self = this;
 		self.data = self.data || [];
 		self.dataHash = {};
-		self._cacheData = {};
 		self.handle(self.data);
 	},
 	clear:function(){
 		var self =this;
 		self.data = [];
 		self.dataHash = {};
-		self._cacheData = {};
 	},
 	count: function(conditions){
-		var data = extend({}, this.dataHash, this._cacheData), count = 0, t;
+		var data = this.dataHash, count = 0, t;
 		for(var key in data){
 			if(isObject(conditions)){
 				t = true;
@@ -1416,63 +1397,27 @@ model("buddy", {
 	get: function(id){
 		return this.dataHash[id];
 	},
-	online: function(ids){
-		this.changeStatus(ids, "online", true);
-	},
-	offline: function(ids){
-		this.changeStatus(ids, "offline", false);
-	},
-	loadDelay: function(){
-		var self = this, cache = self._cacheData, cache_ids = [];
-		for(var key in cache){
-			cache_ids.push(key);
+	complete: function(){
+		var self = this, data = self.dataHash, ids = [], v;
+		for(var key in data){
+			v = data[key];
+			if(v.incomplete && v.presence == 'online')ids.push(key);
 		}
-		self.load(cache_ids);
+		self.load(ids);
 	},
 	update: function(ids){
 		this.load(ids);
 	},
-	changeStatus:function(ids, type, needLoad){
-		ids = idsArray(ids);
-		var l = ids.length;
-		if(l){
-			var self = this, cache = self._cacheData, dataHash = self.dataHash, statusData = [], id, delayData = [], dd;
-			for(var i = 0; i < l; i++){
-				id = ids[i];
-				if(dataHash[id]){
-					statusData.push({id:id, presence:type});
-				}
-				else{
-					dd = {id:id, presence:type};
-					if(!cache[id] || cache[id].presence != type)delayData.push(dd);
-					if(needLoad){
-						cache[id] = dd;
-					}else{
-						if(cache[id])
-							delete cache[id];
-					}
-				}
-
-			}
-			self.handle(statusData);
-			if(needLoad && !self.options.loadDelay)self.loadDelay();
-			else if(delayData.length){
-				if(needLoad)self.trigger(type + "Delay", [delayData]);
-				else self.trigger(type , [delayData]);
-			}
-		}
-
-	},
-	_loadSuccess:function(data){
-		var self = this.self || this, cache = self._cacheData, l = data.length, value , id;
-		//for(var i = 0; i < l; i++){
+	presence: function(data){
+		var self = this, dataHash = self.dataHash;
+		data = isArray(data) ? data : [data];
+		//Complete presence info.
 		for(var i in data){
-			value = data[i];
-			id = value["id"];
-			if(cache[id]){
-				extend(value, cache[id]);
-				delete cache[id];
-			}
+			var v = data[i];
+			//Presence in [show,offline,online]
+			v.presence = v.presence == "offline" ? "offline" : "online";
+			v.show = v.show ? v.show : (v.presence == "offline" ? "unavailable" : "available");
+			v.incomplete = !dataHash[v.id];
 		}
 		self.handle(data);
 	},
@@ -1487,11 +1432,11 @@ model("buddy", {
 				dataType: "json",
 				data:{ ids: ids.join(",")},
 				context: self,
-				success: self._loadSuccess
+				success: self.handle
 			});
 		}
 	},
-	handle:function(addData){
+	handle: function(addData){
 		var self = this, data = self.data, dataHash = self.dataHash, status = {};
 		addData = addData || [];
 		var l = addData.length , v, type, add;
@@ -1499,11 +1444,13 @@ model("buddy", {
 		for(var i in addData){
 			v = addData[i], id = v.id;
 			if(id){
-				v.show = v.show ? v.show : (v.presence == "offline" ? "unavailable" : "available");
 				if(!dataHash[id]){
+					v.presence = v.presence || "online";
+					v.show = v.show ? v.show : (v.presence == "offline" ? "unavailable" : "available");
 					dataHash[id] = {};
 					data.push(dataHash[id]);
 				}
+				v.incomplete = !!v.incomplete;
 				add = checkUpdate(dataHash[id], v);
 				if(add){
 					type = add.presence || "update";
@@ -1516,6 +1463,7 @@ model("buddy", {
 		for (var key in status) {
 			self.trigger(key, [status[key]]);
 		}
+		self.options.active && self.complete();
 	}
 });
 /*
@@ -1806,14 +1754,14 @@ model("history",{
 });
 })(window, document);
 /*!
- * Webim UI v3.0.0
+ * Webim UI v3.0.1
  * http://www.webim20.cn/
  *
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Sat Aug 28 19:45:39 2010 +0800
- * Commit: 7ceb7da5074330c9d143065ab255fcadc423c909
+ * Date: Tue Aug 31 18:49:18 2010 +0800
+ * Commit: d695541956b83ee09bb4ca284ac9fcbea1fac868
  */
 (function(window,document,undefined){
 
@@ -2637,7 +2585,7 @@ function app(name, events){
 	webimUI.apps[name] = events || {};
 }
 extend(webimUI,{
-	version: "3.0.0",
+	version: "3.0.1",
 	widget: widget,
 	app: app,
 	plugin: plugin,
@@ -3500,13 +3448,13 @@ widget("history",{
 		if (shouldTilte) {
 			self._lastLogItem = logItem;
 			var t = (new date(time));
-			markup.push('<h4 class="ui-state-default"><span class="webim-gray">');
+			markup.push('<h4><span class="webim-gray">');
 			markup.push(t.getDay(true));
 			markup.push(" ");
 			markup.push(t.getTime());
 			markup.push('</span>');
 			markup.push(nick);
-			markup.push('</h4>');
+			markup.push('</h4><hr class="webim-line ui-state-default" />');
 		}
 
 		markup.push('<p>');
@@ -4214,7 +4162,7 @@ widget("user",{
 						<a href="#unavailable" class="webim-user-show-unavailable"><em class="webim-icon webim-icon-unavailable"><%=unavailable%></em><%=unavailable%></a>\
 					</p>\
 				</div> \
-					<span id=":userStatus" title="" class="webim-user-status">Hello</span> \
+					<span id=":userStatus" title="" class="webim-user-status"></span> \
 						</div> \
 							</div>'
 },{
@@ -4239,7 +4187,7 @@ widget("user",{
 	update: function(info){
 		var self = this, type = info.show || "unavailable", $ = self.$;
 		self.options.info = info;
-		$.userStatus.innerHTML = info.status || i18n(type);
+		$.userStatus.innerHTML = info.status || "&nbsp;";
 		$.userNick.innerHTML = info.nick || "";
 		$.userPic.setAttribute("href", info.url);
 		$.userPic.firstChild.setAttribute("defaultsrc", info.default_pic_url ? info.default_pic_url : "");
@@ -4323,20 +4271,17 @@ app("buddy", {
 		});
 		buddyUI.window.bind("displayStateChange",function(type){
 			if(type != "minimize"){
-				buddy.option("loadDelay", false);
+				buddy.option("active", true);
 				im.status.set("b", 1);
-				buddy.loadDelay();
+				buddy.complete();
 			}else{
 				im.status.set("b", 0);
-				buddy.option("loadDelay", true);
+				buddy.option("active", false);
 			}
 		});
 		//some buddies online.
 		buddy.bind("online", function(data){
 			buddyUI.add(data);
-			buddyUI.notice("count", buddy.count({presence:"online"}));
-		});
-		buddy.bind("onlineDelay", function(data){
 			buddyUI.notice("count", buddy.count({presence:"online"}));
 		});
 		//some buddies offline.
@@ -4386,8 +4331,8 @@ widget("buddy",{
 					<ul id=":ul"></ul>\
 						</div>\
 							</div>',
-	tpl_group: '<li><h4 class="ui-state-default"><%=title%>(<%=count%>)</h4><ul></ul></li>',
-	tpl_li: '<li title=""><a href="<%=url%>" rel="<%=id%>" class="ui-helper-clearfix"><img width="25" src="<%=pic_url%>" defaultsrc="<%=default_pic_url%>" onerror="var d=this.getAttribute(\'defaultsrc\');if(d && this.src!=d)this.src=d;" /><strong><%=nick%></strong><span><%=status%></span></a></li>'
+	tpl_group: '<li><h4><%=title%>(<%=count%>)</h4><hr class="webim-line ui-state-default" /><ul></ul></li>',
+	tpl_li: '<li title=""><a href="<%=url%>" rel="<%=id%>" class="ui-helper-clearfix"><em class="webim-icon webim-icon-<%=show%>" title="<%=human_show%>"><%=show%></em><img width="25" src="<%=pic_url%>" defaultsrc="<%=default_pic_url%>" onerror="var d=this.getAttribute(\'defaultsrc\');if(d && this.src!=d)this.src=d;" /><strong><%=nick%></strong><span><%=status%></span></a></li>'
 },{
 	_init: function(){
 		var self = this;
@@ -4503,18 +4448,25 @@ self.trigger("offline");
 		el = el.firstChild;
 		el.setAttribute("href", info.url);
 		el = el.firstChild;
+		var show = info.show ? info.show : "available";
+		el.className = "webim-icon webim-icon-" + show;
+		el.setAttribute("title", i18n(show));
+		el = el.nextSibling;
 		el.setAttribute("defaultsrc", info.default_pic_url ? info.default_pic_url : "");
 		el.setAttribute("src", info.pic_url);
 		el = el.nextSibling;
 		el.innerHTML = info.nick;
 		el = el.nextSibling;
-		el.innerHTML = info.status;
+		el.innerHTML = info.status || "&nbsp;";
 		return el;
 	},
 	_addOne:function(info, end){
 		var self = this, li = self.li, id = info.id, ul = self.$.ul;
 		if(!li[id]){
 			if(!info.default_pic_url)info.default_pic_url = "";
+			info.status = info.status || "&nbsp;";
+			info.show = info.show || "available";
+			info.human_show = i18n(info.show);
 			var el = li[id] = createElement(tpl(self.options.tpl_li, info));
 			//self._updateInfo(el, info);
 			var a = el.firstChild;
@@ -4685,6 +4637,7 @@ widget("room",{
 },{
 	_init: function(){
 		var self = this;
+		self.size = 0;
 		self.li = {
 		};
 		self._count = 0;
@@ -4731,6 +4684,7 @@ widget("room",{
 	},
 	_addOne:function(info, end){
 		var self = this, li = self.li, id = info.id, ul = self.$.ul;
+		self.size++;
 		if(!li[id]){
 			if(!info.default_pic_url)info.default_pic_url = "";
 			var el = li[id] = createElement(tpl(self.options.tpl_li, info));
@@ -4755,10 +4709,14 @@ widget("room",{
 		}
 	},
 	add: function(data){
-		hide(this.$.empty);
+		var self = this;
+		hide(self.$.empty);
 		data = makeArray(data);
 		for(var i=0; i < data.length; i++){
-			this._addOne(data[i]);
+			self._addOne(data[i]);
+		}
+		if(self.size > 8){
+			self.scroll(true);
 		}
 	},
 	removeAll: function(){
