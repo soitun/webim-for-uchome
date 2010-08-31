@@ -5,7 +5,8 @@ define('PRODUCT_ROOT', dirname(IM_ROOT));
 $im_config_file = IM_ROOT.DIRECTORY_SEPARATOR.'config.php';
 $product_config_file = PRODUCT_ROOT.DIRECTORY_SEPARATOR.'config.php';
 $template_file = IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'webim_uchome.htm';
-$db_file = IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'webim.sql';
+$db_file = IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'install.sql';
+$un_db_file = IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'uninstall.sql';
 $cache_dir = PRODUCT_ROOT.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'tpl_cache';
 
 //添加需监测可写权限的文件
@@ -13,6 +14,7 @@ $need_check_paths = array();
 $need_check_paths[] = $product_config_file;
 $need_check_paths[] = $cache_dir;
 $need_check_paths[] = $db_file;
+$need_check_paths[] = $un_db_file;
 $need_check_paths[] = $template_file;
 
 include_once($product_config_file);
@@ -79,6 +81,38 @@ function install_template($templates, $file){
 		$inc_markup = "<!--{template ".$name."}-->";
 		$html .= $inc_markup."</body>".$foot;
 		file_put_contents($inc, $html);
+	}
+	return $logs;
+}
+
+function uninstall_template($templates, $file){
+	$logs = array();
+	foreach($templates as $k => $v) {
+		$tmp = $v.DIRECTORY_SEPARATOR.basename($file);
+		if(file_exists($tmp)){
+			$logs[] = array(true, "删除模版", $tmp);
+			unlink($tmp);
+		}
+		$inc = $v.DIRECTORY_SEPARATOR.'footer.htm';
+		$name = basename($file, ".htm");
+		$html = file_get_contents($inc);
+		$html = preg_replace('/<\!--\{template\swebim[^>]+>/i', "", $html);
+		$logs[] = array(true, "卸载模版", $inc);
+		//list($html, $foot) = explode("</body>", $html);
+		//$inc_markup = "<!--{template ".$name."}-->";
+		//$html .= $inc_markup."</body>".$foot;
+		file_put_contents($inc, $html);
+	}
+	return $logs;
+}
+
+function uninstall_config($config, $file, $product_file){
+	$logs = array();
+	$markup = file_get_contents($product_file);
+	if(strpos($markup, 'webim/config.php')) {
+		$markup = preg_replace('/\@?include_once\([\'"]webim\/config\.php[\'"]\);?/i', "", $markup);
+		file_put_contents($product_file, $markup);
+		$logs[] = array(true, "卸载配置", $product_file);
 	}
 	return $logs;
 }

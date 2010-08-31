@@ -1,6 +1,12 @@
 <?php
-include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include.php');
+include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'include.php');
+include_once(IM_ROOT.DIRECTORY_SEPARATOR.'common.php');
+if(!ckfounder($user->uid)){
+	//is not admin
+	exit('Please login as admin.');
+}
 $msg = "";
+$success = false;
 if(!empty($unwritable_paths)){
 	$msg = unwritable_log($unwritable_paths, $subpathlen, true);
 }elseif(!is_db_connectable($db_config)){
@@ -18,6 +24,7 @@ if(!empty($unwritable_paths)){
 		$logs = array_merge($logs, install_db($db_config, $db_file));
 		$logs = array_merge($logs, clean_cache($cache_dir));
 		$msg = log_install($logs, $subpathlen, true);
+		$success = true;
 	}else{
 		$msg = config_html($_IMC);
 	}
@@ -37,13 +44,13 @@ function config_html($config, $errors = array()){
 		<div class="box$err_c">
 		<h3>设置安装信息</h3>
 		<div class="box-c">
-			<p class="box-desc">请先到NextIM网站注册</p>
+			<p class="box-desc">请先到<a href="http://www.webim20.cn" target="_blank">webim20.cn</a>注册apikey网站注册</p>
 			$err
 			<form action="" method="post" class="form">
-				<p><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="$host" name="host"/><span class="help">IM服务器地址</span></p>
-				<p><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="$domain" name="domain"/><span class="help">网站注册域名</span></p>
-				<p><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="$apikey" name="apikey"/></p>
-				<p class="actions"><input type="submit" class="submit" value="提交" /></p>
+				<p class="clearfix"><label for="host">服务器地址：</label><input class="text" type="text" id="host" value="$host" name="host"/><span class="help">IM服务器地址</span></p>
+				<p class="clearfix"><label for="domain">注册域名：</label><input class="text" type="text" id="domain" value="$domain" name="domain"/><span class="help">网站注册域名</span></p>
+				<p class="clearfix"><label for="apikey">注册apikey：</label><input class="text" type="text" id="apikey" value="$apikey" name="apikey"/></p>
+				<p class="actions clearfix"><input type="submit" class="submit" value="提交" /></p>
 			</form>
 		</div>
 	</div>
@@ -55,12 +62,18 @@ EOF;
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>WebIM For UChome安装</title>
-		<link href="../base.css" media="all" type="text/css" rel="stylesheet" />
+		<link href="base.css" media="all" type="text/css" rel="stylesheet" />
 	</head>
 	<body>
 		<h1>WebIM For UChome安装</h1>
-		<?php echo $msg; ?>
-		<div id="footer"><p><a href="http://www.nextim.cn">© 2010 NextIM</a></p></div>
+		<div id="wrap">
+			<?php echo $msg; ?>
+		</div>
+		<div id="footer"><p><a href="http://www.webim20.cn">© 2010 NextIM</a></p></div>
+		<?php if($success): ?>
+		<script type="text/javascript">
+			setTimeout(function(){window.location.href = "index.php";}, 2000);
+		</script>
+		<?php endif; ?>
 	</body>
 </html>
-

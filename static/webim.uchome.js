@@ -1,12 +1,12 @@
 /*!
- * Webim v1.0.0pre
+ * Webim v1.0.0
  * http://www.webim20.cn/
  *
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Fri Aug 27 16:54:47 2010 +0800
- * Commit: 67ceb33bdf89213a903a9f1bce8770be69f992ae
+ * Date: Sat Aug 28 19:43:13 2010 +0800
+ * Commit: 79741a1eb92f3c500f7e09ceb6437cb45b74a244
  */
 (function(window, document, undefined){
 
@@ -986,7 +986,8 @@ function webim(element, options){
 extend(webim.prototype, objectExtend,{
 	_init: function(){
 		var self = this;
-		var user = {};
+		//Default user status info.
+		var user = {presence: 'offline', show: 'unavailable'};
 		self.data = {user: user};
 		self.status = new webim.status();
 		self.setting = new webim.setting();
@@ -1226,7 +1227,7 @@ function model(name, defaults, proto){
 window.webim = webim;
 
 extend(webim,{
-	version:"1.0.0pre",
+	version:"1.0.0",
 	defaults:{
 		urls:{
 			online: "webim/online",
@@ -1805,14 +1806,14 @@ model("history",{
 });
 })(window, document);
 /*!
- * Webim UI v1.0.0pre
+ * Webim UI v3.0.0
  * http://www.webim20.cn/
  *
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Fri Aug 27 16:55:24 2010 +0800
- * Commit: c26d6d5065a0250ec048a4ec1158ba49937ae0c7
+ * Date: Sat Aug 28 19:45:39 2010 +0800
+ * Commit: 7ceb7da5074330c9d143065ab255fcadc423c909
  */
 (function(window,document,undefined){
 
@@ -2323,10 +2324,10 @@ extend(webimUI.prototype, objectExtend, {
 			self._initStatus();
 			//setting.set(data.setting);
 		}).bind("stop", function(type){
-			layout.changeState("stop");
 			//hide(layout.widget("room").window.element);
 			type == "offline" && layout.removeAllChat();
 			layout.updateAllChat();
+			layout.changeState("stop");
 		});
 		//setting events
 		setting.bind("update",function(key, val){
@@ -2442,7 +2443,7 @@ extend(webimUI.prototype, objectExtend, {
 		a = status.get("a");
 
 		tabIds && tabIds.length && tabs && each(tabs, function(k,v){
-			var id = k.slice(2), type = k[0];
+			var id = k.slice(2), type = k.slice(0,1);
 			self.addChat(type, id, {}, { isMinimize: true});
 			layout.chat(k).window.notifyUser("information", v["n"]);
 		});
@@ -2636,7 +2637,7 @@ function app(name, events){
 	webimUI.apps[name] = events || {};
 }
 extend(webimUI,{
-	version: "1.0.0pre",
+	version: "3.0.0",
 	widget: widget,
 	app: app,
 	plugin: plugin,
@@ -3239,7 +3240,14 @@ widget("layout",{
 	},
 	_initEvents: function(){
 		var self = this, win = self.window, $ = self.$;
-		addEvent(win,"resize", function(){self.buildUI();});
+		//Ie will call resize events after onload.
+		var c = false;
+		addEvent(win,"resize", function(){
+			if(c){
+				c = true;
+				self.buildUI();
+			}
+		});
 		addEvent($.next,"mousedown", function(){self._slide(-1);});
 		addEvent($.next,"mouseup", function(){self._slideUp();});
 		disableSelection($.next);
@@ -3370,7 +3378,8 @@ widget("layout",{
 		if(!panels[id]){
 			var win = self.tabs[id] = new webimUI.window(null, extend({
 				isMinimize: self.activeTabId || !self.options.chatAutoPop,
-				tabWidth: self.tabWidth -2
+				tabWidth: self.tabWidth -2,
+				titleVisibleLength: 9
 			},winOptions)).bind("close", function(){ self._onChatClose(id)}).bind("displayStateChange", function(state){ self._onChatChange(id,state)});
 			self.tabIds.push(id);
 			self.$.tabs.insertBefore(win.element, self.$.tabs.firstChild);
@@ -4228,7 +4237,7 @@ widget("user",{
 		});
 	},
 	update: function(info){
-		var self = this, type = info.show || "available", $ = self.$;
+		var self = this, type = info.show || "unavailable", $ = self.$;
 		self.options.info = info;
 		$.userStatus.innerHTML = info.status || i18n(type);
 		$.userNick.innerHTML = info.nick || "";
