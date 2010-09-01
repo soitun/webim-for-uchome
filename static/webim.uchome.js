@@ -1,12 +1,12 @@
 /*!
- * Webim v1.0.0
+ * Webim v1.0.1
  * http://www.webim20.cn/
  *
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Tue Aug 31 18:48:43 2010 +0800
- * Commit: fddb4b61dd7645a14bc9b0784ff660a691538d8b
+ * Date: Wed Sep 1 17:13:22 2010 +0800
+ * Commit: d3492ede87d66f9e785f291d5471e4f8bd0ff5d0
  */
 (function(window, document, undefined){
 
@@ -1075,7 +1075,12 @@ extend(webim.prototype, objectExtend,{
 			if(online_buddies.length)buddy.presence(online_buddies);
 			history.handle(data);
 		});
-		function mapFrom(a){ return {id: a.from, presence: a.type, nick: a.nick, show: a.show}; }
+		function mapFrom(a){ 
+			var d = {id: a.from, presence: a.type}; 
+			if(a.show)d.show = a.show;
+			if(a.nick)d.nick = a.nick;
+			return d;
+		}
 
 		self.bind("presence",function(data){
 			buddy.presence(map(data, mapFrom));
@@ -1212,7 +1217,7 @@ function model(name, defaults, proto){
 window.webim = webim;
 
 extend(webim,{
-	version:"1.0.0",
+	version:"1.0.1",
 	defaults:{
 		urls:{
 			online: "webim/online",
@@ -1416,7 +1421,6 @@ model("buddy", {
 			var v = data[i];
 			//Presence in [show,offline,online]
 			v.presence = v.presence == "offline" ? "offline" : "online";
-			v.show = v.show ? v.show : (v.presence == "offline" ? "unavailable" : "available");
 			v.incomplete = !dataHash[v.id];
 		}
 		self.handle(data);
@@ -1760,8 +1764,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Tue Aug 31 18:49:18 2010 +0800
- * Commit: d695541956b83ee09bb4ca284ac9fcbea1fac868
+ * Date: Tue Aug 31 20:31:23 2010 +0800
+ * Commit: 20266d39dd489abc3a0cf15100e541f9e38c24f1
  */
 (function(window,document,undefined){
 
@@ -4279,20 +4283,26 @@ app("buddy", {
 				buddy.option("active", false);
 			}
 		});
+		function count_buddy(){
+			return buddy.count({presence:"online"}) - buddy.count({presence:"online", show: "invisible"});
+		}
+
+		var mapId = function(a){ return isObject(a) ? a.id : a };
+		var grepVisible = function(a){ return a.show != "invisible" && a.presence == "online"};
+		var grepInvisible = function(a){ return a.show == "invisible"; };
 		//some buddies online.
 		buddy.bind("online", function(data){
-			buddyUI.add(data);
-			buddyUI.notice("count", buddy.count({presence:"online"}));
+			buddyUI.add(grep(data, grepVisible));
 		});
 		//some buddies offline.
-		var mapId = function(a){ return isObject(a) ? a.id : a };
 		buddy.bind("offline", function(data){
 			buddyUI.remove(map(data, mapId));
-			buddyUI.notice("count", buddy.count({presence:"online"}));
 		});
 		//some information has been modified.
 		buddy.bind("update", function(data){
-			buddyUI.update(data);
+			buddyUI.add(grep(data, grepVisible));
+			buddyUI.update(grep(data, grepVisible));
+			buddyUI.remove(map(grep(data, grepInvisible), mapId));
 		});
 		buddyUI.offline();
 		//user events
@@ -4312,7 +4322,6 @@ app("buddy", {
 	},
 	go: function(){
 		var ui = this, im = ui.im, buddy = im.buddy, buddyUI = ui.buddy;
-		buddyUI.notice("count", buddy.count({presence:"online"}));
 		buddyUI.user.update(im.data.user);
 	},
 	stop: function(type){
@@ -4342,7 +4351,7 @@ widget("buddy",{
 		};
 		self.li_group = {
 		};
-		self._count = 0;
+		self.size = 0;
 		//self._initEvents();
 		self.user = new webimUI.user();
 		self.header = self.user.element;
@@ -4386,14 +4395,14 @@ self.trigger("offline");
 
 	},
 	_titleCount: function(){
-		var self = this, _count = self._count, win = self.window, empty = self.$.empty, element = self.element;
-		win && win.title(i18n("buddy") + "(" + (_count ? _count : "0") + ")");
-		if(!_count){
+		var self = this, size = self.size, win = self.window, empty = self.$.empty, element = self.element;
+		win && win.title(i18n("buddy") + "(" + (size ? size : "0") + ")");
+		if(!size){
 			show(empty);
 		}else{
 			hide(empty);
 		}
-		if(_count > 8){
+		if(size > 8){
 			self.scroll(true);
 		}else{
 			self.scroll(false);
@@ -4418,15 +4427,11 @@ self.trigger("offline");
 			win.title(i18n("buddy") + "[" + i18n(type) + "]");
 		}
 	},
-	notice: function(type, nameOrCount){
+	notice: function(type, name){
 		var self = this;
 		switch(type){
 			case "buddyOnline":
-				self._titleBuddyOnline(nameOrCount);
-			break;
-			case "count":
-				self._count = nameOrCount;
-			self._titleCount();
+				self._titleBuddyOnline(name);
 			break;
 			default:
 				self._title(type);
@@ -4463,6 +4468,7 @@ self.trigger("offline");
 	_addOne:function(info, end){
 		var self = this, li = self.li, id = info.id, ul = self.$.ul;
 		if(!li[id]){
+			self.size++;
 			if(!info.default_pic_url)info.default_pic_url = "";
 			info.status = info.status || "&nbsp;";
 			info.show = info.show || "available";
@@ -4514,6 +4520,7 @@ self.trigger("offline");
 		for(var i=0; i < data.length; i++){
 			this._addOne(data[i], end);
 		}
+		this._titleCount();
 	},
 	removeAll: function(){
 		var ids = [], li = this.li;
@@ -4521,14 +4528,16 @@ self.trigger("offline");
 			ids.push(k);
 		}
 		this.remove(ids);
+		this._titleCount();
 	},
 	remove: function(ids){
-		var id, el, li = this.li, group, li_group = this.li_group;
+		var self = this, id, el, li = self.li, group, li_group = self.li_group;
 		ids = idsArray(ids);
 		for(var i=0; i < ids.length; i++){
 			id = ids[i];
 			el = li[id];
 			if(el){
+				self.size--;
 				group = li_group[id];
 				if(group){
 					group.count --;
@@ -4539,6 +4548,7 @@ self.trigger("offline");
 				delete(li[id]);
 			}
 		}
+		self._titleCount();
 	},
 	select: function(id){
 		var self = this, el = self.li[id];
@@ -4822,6 +4832,158 @@ widget("menu",{
 	destroy: function(){
 	}
 });
+/* 
+* ui.chatlink
+*
+* Notice: chatlink use user_id
+*
+* TODO: 支持群组Link
+*
+* options:
+* methods:
+* 	add(buddies)
+* 	remove(buddies)
+* 	idsArray()
+* 	removeAll()
+* 	destroy()
+* 
+* events: 
+* 	select
+* 
+*/
+
+app("chatlink", {
+	init: function(options){
+		var ui = this, im = ui.im;
+		var chatlink = ui.chatlink = new webim.ui.chatlink(null).bind("select", function(id){
+			ui.addChat("buddy", id);
+			ui.layout.focusChat("buddy", id);
+		});
+		var grepVisible = function(a){ return a.show != "invisible" && a.presence == "online"};
+		var grepInvisible = function(a){ return a.show == "invisible" };
+		im.buddy.bind("online",function(data){
+			chatlink.add(grep(data, grepVisible));
+		}).bind("update",function(data){
+			chatlink.add(grep(data, grepVisible));
+			chatlink.remove(grep(data, grepInvisible));
+		}).bind("offline",function(data){
+			chatlink.remove(data);
+		});
+	},
+	ready: function(params){
+		params.stranger_id = this.chatlink.idsArray();
+	},
+	go: function(){
+		this.chatlink.remove(this.im.data.user);
+	},
+	stop: function(){
+		this.chatlink.removeAll();
+	}
+});
+widget("chatlink",
+       {
+	       re_link: [/space\.php\?uid=(\d+)$/i, /space\-(\d+)\.html$/i, /space\-uid\-(\d+)\.html$/i, /\?mod=space&uid=(\d+)$/, /\?(\d+)$/],
+	       re_space_class: /spacemenu_list|line_list|xl\sxl2\scl/i,
+	       re_space_id: /profile_act/i
+       },
+       {
+	       _init: function(){
+		       var self = this, element = self.element, list = self.list = {}, options = self.options, anthors = self.anthors = {}, re = options.re_link, re_len = re.length, re_space_id = options.re_space_id, re_space_class = options.re_space_class;
+		       function parse_id(link){
+			       if(!link)return false;
+			       for(var i = 0; i < re_len; i++){
+				       var ex = re[i].exec(link);
+				       if(ex && ex[1]){
+					       return ex[1];
+				       }
+			       }
+			       return false;
+		       }
+		       var a = document.getElementsByTagName("a"), b;
+
+		       a && each(a, function(i, el){
+			       var id = parse_id(el.href), text = el.innerHTML;
+			       if(id && children(el).length == 0 && text){
+				       anthors[id] ? anthors[id].push(el) :(anthors[id] = [el]);
+				       list[id] = {id: id, name: text};
+			       }
+		       });
+		       var id = parse_id(window.location.href);
+		       if(id){
+			       list[id] = extend(list[id], {id: id, profile: true});
+			       var els = document.getElementsByTagName("*"), l = els.length, el, className, attr_id;
+			       for(var i = 0; i < l ; i++){
+				       el = els[i], className = el.className, attr_id = el.id;
+				       if((re_space_class && re_space_class.test(className)) || (re_space_id && re_space_id.test(attr_id)))
+					       {
+						       el = children(el);
+						       if(el.length){
+							       el = el[el.length - 1];
+							       anthors[id] ? anthors[id].push(el) :(anthors[id] = [el]);
+						       }
+						       break;
+					       }
+			       }
+		       }
+	       },
+	       _temp:function(attr){
+		       var self = this;
+		       var el = createElement(tpl('<a id="<%=id%>" href="#chat" title="<%=title%>" class="webim-chatlink"><%=text%></a>', attr));
+		       addEvent(el, "click", function(e){
+			       self.trigger("select", this.id);
+			       stopPropagation(e);
+			       preventDefault(e);
+		       });
+		       return el;
+	       },
+	       idsArray: function(){
+		       var _ids = [];
+		       each(this.list, function(k,v){_ids.push(k)});
+		       return _ids;
+	       },
+	       add: function(data){
+		       var self = this, list = self.list, anthors = self.anthors, l = data.length, i, da, uid, li, anthor;
+		       for(i = 0; i < l; i++){
+			       da = data[i];
+			       if(da.id && (uid = da.uid) && (li = list[uid])){
+				       anthor = anthors[uid];
+				       if(!li.elements && anthor){
+					       li.elements = [];
+					       for(var j = 0; j < anthor.length; j++){
+						       if(anthor[j].tagName.toLowerCase() == "li"){
+							       li.elements[j] = document.createElement("li");
+							       li.elements[j].appendChild(self._temp({id: da.id, title: "", text: i18n('chat with me')}));
+						       }else{
+							       li.elements[j] = self._temp({id: da.id, title: i18n('chat with',{name: li.name}), text: ""});
+						       }
+					       }
+				       }
+				       anthor && each(anthor, function(n, v){
+					       v.parentNode.insertBefore(li.elements[n], v.nextSibling);
+				       });
+			       }
+		       }
+	       },
+	       remove: function(data){
+		       var self = this, list = self.list, anthors = self.anthors, l = data.length, i, da, uid, li, anthor;
+		       for(i = 0; i < l; i++){
+			       da = data[i];
+			       if(da.id && (uid = da.uid) && (li = list[uid])){
+				       li.elements && each(li.elements, function(n, v){
+					       remove(v);
+				       });
+			       }
+		       }
+	       },
+	       removeAll: function(){
+		       each(this.list, function(k, v){
+			       v.elements && each(v.elements, function(n, el){
+				       remove(el);
+			       });
+		       });
+	       }
+       }
+      );
 /**/
 /*
 notification //
@@ -4919,9 +5081,9 @@ widget("notification",{
 	},
 	_li_tpl: function(data){
 		return tpl(this.options.tpl_li, {
-			text: text,
-			link: link,
-			target: isExtlink ? "_blank" : ""
+			text: data.text,
+			link: data.link,
+			target: data.isExtlink ? "_blank" : ""
 		});
 	},
 	_fitUI:function(){

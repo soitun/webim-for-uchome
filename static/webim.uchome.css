@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Tue Aug 31 18:49:18 2010 +0800
- * Commit: d695541956b83ee09bb4ca284ac9fcbea1fac868
+ * Date: Tue Aug 31 20:31:23 2010 +0800
+ * Commit: 20266d39dd489abc3a0cf15100e541f9e38c24f1
  */
 
 body {
@@ -998,6 +998,14 @@ a .webim-icon, a .ui-icon{
 .webim-menu ul li span{
         padding: 0 .4em;
 }
+.webim-chatlink{
+	cursor:pointer;
+	padding-left: 1.2em;
+	background:url(images/chat_online.gif) no-repeat 2px center;
+	display:inline;
+	*display:inline-block;
+}
+
 .webim-notification {
         padding:1em .5em;
         overflow-x: hidden;
