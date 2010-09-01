@@ -1764,8 +1764,8 @@ model("history",{
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Wed Sep 1 17:20:48 2010 +0800
- * Commit: ab9f13b12f1d4d096c64e60283e38618f876471a
+ * Date: Wed Sep 1 18:53:59 2010 +0800
+ * Commit: 5dd0d275972f5c49cf89d3671f950d5fbce6f474
  */
 (function(window,document,undefined){
 
@@ -3847,7 +3847,9 @@ widget("chat",{
 		$.userPic.setAttribute("href", info.url);
 		$.userPic.firstChild.setAttribute("defaultsrc", info.default_pic_url ? info.default_pic_url : "");
 		setTimeout(function(){
-		$.userPic.firstChild.setAttribute("src", info.pic_url);
+			if(info.pic_url || info.default_pic_url) {
+				$.userPic.firstChild.setAttribute("src", info.pic_url || info.default_pic_url);
+			}
 		},100);
 		$.userStatus.innerHTML = info.status || "&nbsp";
 		self.window.title(info.nick, info.show);
@@ -4156,7 +4158,7 @@ widget("setting",{
 widget("user",{
 	template: '<div>  \
 		<div id=":user" class="webim-user"> \
-			<a id=":userPic" class="webim-user-pic ui-corner-all ui-state-active" href="#id"><img width="50" height="50" src="about:blank" defaultsrc="" onerror="var d=this.getAttribute(\'defaultsrc\');if(d && this.src!=d)this.src=d;" class="ui-corner-all"></a> \
+			<a id=":userPic" class="webim-user-pic ui-corner-all ui-state-active" href="#id"><img width="50" height="50" defaultsrc="" onerror="var d=this.getAttribute(\'defaultsrc\');if(d && this.src!=d)this.src=d;" class="ui-corner-all"></a> \
 				<div class="webim-user-show"><h4><a  id=":userShowTrigger" href="#show"><strong id=":userNick"></strong><span id=":userShow"><em class="webim-icon webim-icon-unavailable"><%=unavailable%></em><%=unavailable%></span><em class="ui-icon ui-icon-triangle-1-s"><%=show_status_list%></em></a></h4>\
 					<p id=":userShowList" class="ui-state-active ui-corner-all" style="display: none;">\
 						<a href="#available" class="webim-user-show-available"><em class="webim-icon webim-icon-available"><%=available%></em><%=available%></a>\
@@ -4196,7 +4198,9 @@ widget("user",{
 		$.userPic.setAttribute("href", info.url);
 		$.userPic.firstChild.setAttribute("defaultsrc", info.default_pic_url ? info.default_pic_url : "");
 		setTimeout(function(){
-			$.userPic.firstChild.setAttribute("src", info.pic_url);
+			if(info.pic_url || info.default_pic_url) {
+				$.userPic.firstChild.setAttribute("src", info.pic_url || info.default_pic_url);
+			}
 		},100);
 		self.show(type);
 	},
@@ -4459,7 +4463,9 @@ self.trigger("offline");
 		el.setAttribute("title", i18n(show));
 		el = el.nextSibling;
 		el.setAttribute("defaultsrc", info.default_pic_url ? info.default_pic_url : "");
-		el.setAttribute("src", info.pic_url);
+		if(info.pic_url || info.default_pic_url) {
+			el.setAttribute("src", info.pic_url || info.default_pic_url);
+		}
 		el = el.nextSibling;
 		el.innerHTML = info.nick;
 		el = el.nextSibling;
@@ -4474,6 +4480,7 @@ self.trigger("offline");
 			info.status = info.status || "&nbsp;";
 			info.show = info.show || "available";
 			info.human_show = i18n(info.show);
+			info.pic_url = info.pic_url || "";
 			var el = li[id] = createElement(tpl(self.options.tpl_li, info));
 			//self._updateInfo(el, info);
 			var a = el.firstChild;
@@ -4872,7 +4879,7 @@ app("chatlink", {
 		});
 	},
 	ready: function(params){
-		params.stranger_id = this.chatlink.idsArray();
+		params.stranger_ids = this.chatlink.idsArray();
 	},
 	go: function(){
 		this.chatlink.remove(this.im.data.user);
