@@ -96,21 +96,25 @@ function complete_status($members){
 	return $members;
 }
 
-//$ids="licangcai,qiukh"
-function buddy($ids) {
+//$names="licangcai,qiukh"
+function buddy($names, $uids = null) {
 	global $_SGLOBAL,$user, $groups;
-
-	$ids = ids_array($ids);
-	$ids = ids_except($user->id, $ids);
-	if(empty($ids))return array();
-	$ids = join("','", $ids);
+	$where_name = "";
+	$where_uid = "";
+	if(!$names and !$uids)return array();
+	if($names){
+		$names = "'".implode("','", explode(",", $names))."'";
+		$where_name = "m.username IN ($names)";
+	}
+	if($uids){
+		$where_uid = "m.uid IN ($uids)";
+	}
+	$where_sql = $where_name && $where_uid ? "($where_name OR $where_uid)" : ($where_name ? $where_name : $where_uid);
 	$buddies = array();
-	$q="SELECT main.uid, main.username, main.name, f.gid, f.fuid FROM "
-		.tname('space')
-		." main LEFT OUTER JOIN "
-		.tname('friend')
-		." f ON f.uid = '$user->uid' AND main.uid = f.fuid WHERE main.username IN ('$ids')";
-	$query = $_SGLOBAL['db']-> query($q);
+	$query = $_SGLOBAL['db']-> query($q="SELECT m.uid, m.username, m.name, f.gid, f.fuid 
+		FROM " .tname('space')." m 
+		LEFT OUTER JOIN ".tname('friend')." f ON f.uid = '$user->uid' AND m.uid = f.fuid 
+		WHERE m.uid <> $user->uid AND $where_sql");
 	while ($value = $_SGLOBAL['db']->fetch_array($query)) {
 		$id = $value['username'];
 		$nick = nick($value);
@@ -133,8 +137,6 @@ function buddy($ids) {
 	}
 	return $buddies;
 }
-
-
 
 function rooms() {
 	global $_SGLOBAL,$user;
@@ -160,78 +162,77 @@ function rooms() {
 	return $rooms;
 }
 
-
-function find_new_message() {
-	global $_SGLOBAL,$user, $ucdb;
-	$id = $user->id;
-	$messages = array();
-	$query = $ucdb->query("SELECT * FROM "
-		.im_tname('histories')
-		." WHERE `to`='$id' and send = 0 ORDER BY timestamp DESC LIMIT 100");
-	while ($value = $ucdb->fetch_array($query)) {
-		array_unshift($messages,array(
-			'to'=>$value['to'],
-			'nick'=>$value['nick'],
-			'from'=>$value['from'],
-			'style'=>$value['style'],
-			'body'=>$value['body'],
-			'timestamp'=>$value['timestamp'],
-			'type' =>$value['type']));
-	}
-	return $messages;
-}
-
 function new_message_to_histroy() {
-	global $_SGLOBAL,$user, $ucdb;
+	global $user, $ucdb;
 	$id = $user->id;
 	$ucdb->query("UPDATE ".im_tname('histories')." SET send = 1 WHERE `to`='$id' AND send = 0");
 }
 
-function find_history($ids,$type="unicast") {
-	global $_SGLOBAL,$user, $ucdb;
-	$uname = $user->id;
-	$histories = array();
-	$ids = ids_array($ids);
-	if($ids===NULL)return array();
-	for($i=0;$i<count($ids);$i++) {
+/**
+ * Get history message
+ *
+ * @param string $type unicast or multicast
+ * @param string $id
+ *
+ * Example:
+ * 	history('unicast', 'webim');
+ * 	history('multicast', '36');
+ *
+ */
 
-		$id = $ids[$i];
-
-		$list = array();
-		if($type=='multicast') {
-			$q="SELECT * FROM ".im_tname('histories')
-				. " WHERE (`to`='$id') AND (`type`='multicast') AND send = 1 ORDER BY timestamp DESC LIMIT 30";
-			$query = $ucdb->query($q);
-			while ($value = $ucdb->fetch_array($query)) {
-				array_unshift($list,
-					array(
-						'to'=>$value['to'],
-						'from'=>$value['from'],
-						'style'=>$value['style'],
-						'body'=>$value['body'],
-						'timestamp'=>$value['timestamp'],
-						'type' =>$value['type'],
-						'nick'=>$value['nick']));
-			}
-		}else {
-			$q=  "SELECT main.* FROM "
-				. im_tname('histories')
-				. " main WHERE (`send`=1) AND ((`to`='$id' AND `from`='$uname' AND `fromdel` != 1) or (`from`='$id' AND `to`='$uname' AND `todel` != 1))  ORDER BY timestamp DESC LIMIT 30";
-			$query = $ucdb->query($q);
-			while ($value = $ucdb->fetch_array($query)) {
-				array_unshift($list,
-					array('to'=>$value['to'],
-					'nick'=>$value['nick'],
-					'from'=>$value['from'],
-					'style'=>$value['style'],
-					'body'=>$value['body'],
-					'type' => $value['type'],
-					'timestamp'=>$value['timestamp']));
-			}
+function history($type, $id){
+	global $user, $ucdb;
+	$user_id = $user->id;
+	$list = array();
+	if($type == "unicast"){
+		$query = $ucdb->query("SELECT * FROM ".im_tname('histories')." 
+			WHERE `type` = 'unicast' 
+			AND ((`to`='$id' AND `from`='$user_id' AND `fromdel` != 1) 
+			OR (`send` = 1 AND `from`='$id' AND `to`='$user_id' AND `todel` != 1))  
+			ORDER BY timestamp DESC LIMIT 30");
+		while ($value = $ucdb->fetch_array($query)){
+			array_unshift($list, log_item($value));
 		}
-
+	}elseif($type == "multicast"){
+		$query = $ucdb->query("SELECT * FROM ".im_tname('histories')." 
+			WHERE `to`='$id' AND `type`='multicast' AND send = 1 
+			ORDER BY timestamp DESC LIMIT 30");
+		while ($value = $ucdb->fetch_array($query)){
+			array_unshift($list, log_item($value));
+		}
+	}else{
 	}
 	return $list;
+}
+
+/**
+ * Get new message
+ *
+ */
+
+function new_message() {
+	global $user, $ucdb;
+	$id = $user->id;
+	$list = array();
+	$query = $ucdb->query("SELECT * FROM ".im_tname('histories')." 
+		WHERE `to`='$id' and send = 0 
+		ORDER BY timestamp DESC LIMIT 100");
+	while ($value = $ucdb->fetch_array($query)){
+		array_unshift($list, log_item($value));
+	}
+	return $list;
+}
+
+function log_item($value){
+	return (object)array(
+		'to' => $value['to'],
+		'nick' => $value['nick'],
+		'from' => $value['from'],
+		'style' => $value['style'],
+		'body' => $value['body'],
+		'type' => $value['type'],
+		'timestamp' => $value['timestamp']
+	);
 }
 
 function setting() {

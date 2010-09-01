@@ -12,7 +12,9 @@ $cache_rooms = array();//For find.
 $active_buddies = ids_array(gp('buddy_ids'));
 $active_rooms = ids_array(gp('room_ids'));
 
-$new_messages = find_new_message();
+$strangers = ids_array(gp('stranger_ids'));
+
+$new_messages = new_message();
 $online_buddies = online_buddy();
 $buddies_with_info = array();//Buddy with info.
 
@@ -32,15 +34,17 @@ foreach($online_buddies as $k => $v){
 	$cache_buddies[$id] = $v;
 }
 
-//Get active buddies info.
+//Get active buddies and strangers info.
+$active_buddies = array_unique($active_buddies);
 $buddies_without_info = array();
 foreach($active_buddies as $k => $v){
 	if(!in_array($v, $buddies_with_info)){
 		$buddies_without_info[] = $v;
 	}
 }
-if(!empty($buddies_without_info)){
-	foreach(buddy(implode(",", $buddies_without_info)) as $k => $v){
+
+if(!empty($buddies_without_info) || !empty($strangers)){
+	foreach(buddy(implode(",", $buddies_without_info), implode(",", $strangers)) as $k => $v){
 		$id = $v->id;
 		$im_buddies[] = $id;
 		$v->presence = "offline";
@@ -48,6 +52,7 @@ if(!empty($buddies_without_info)){
 		$cache_buddies[$id] = $v;
 	}
 }
+
 if(!$_IMC['disable_room']){
 	$rooms = rooms();
 	$setting = setting();
@@ -110,6 +115,18 @@ if($data->success){
 			$o[] = $cache_buddies[$id];
 		}
 	}
+	//Provide history for active buddies and rooms
+	foreach($active_buddies as $id){
+		if(isset($cache_buddies[$id])){
+			$cache_buddies[$id]->history = history("unicast", $id);
+		}
+	}
+	foreach($active_rooms as $id){
+		if(isset($cache_rooms[$id])){
+			$cache_rooms[$id]->history = history("multicast", $id);
+		}
+	}
+
 	$show_buddies = $o;
 	$data->buddies = $show_buddies;
 
