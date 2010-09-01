@@ -35,8 +35,7 @@ $ucdb->query("SET NAMES utf8");
 
 function nick($sp) {
 	global $_IMC;
-	$_nick=(!$_IMC['show_realname']||empty($sp['name'])) ? $sp['username'] : $sp['name'];
-	return $_nick;
+	return (!$_IMC['show_realname']||empty($sp['name'])) ? $sp['username'] : $sp['name'];
 }
 
 function ids_array($ids) {
@@ -121,8 +120,9 @@ function buddy($ids) {
 			$gid = $value['gid'];
 			$group = (empty($gid) || empty($groups[$gid])) ? "friend" : $groups[$gid];
 		}
-		$buddies[]=(object)array('uid'=>$id,
-			'id'=> $nick,
+		$buddies[]=(object)array(
+			'uid'=>$value['uid'],
+			'id'=> $id,
 			'nick'=> $nick,
 			'pic_url' =>avatar($value['uid'],"small",true),
 			'status'=>'' ,
