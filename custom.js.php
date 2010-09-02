@@ -64,7 +64,7 @@ $setting = json_encode(setting());
 	ui.addApp("notification");
 	ui.addApp("setting", {"data": webim.setting.defaults.data});
 	if(<?php echo var_export(!$_IMC['disable_chatlink']) ?>)ui.addApp("chatlink", {
-		link_class_out: /r_option|spacelink/i
+		off_link_class: /r_option|spacelink/i
 	});
 	ui.render();
         im.autoOnline() && im.online();
