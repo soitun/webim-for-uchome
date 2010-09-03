@@ -11,3 +11,4 @@ echo 'Empty post $id';
         $ucdb->query("DELETE FROM ".im_tname('histories')." WHERE fromdel=1 AND todel=1");
         echo "ok";
 }
+

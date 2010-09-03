@@ -11,6 +11,9 @@ if(!isset($_IMC)){
 }
 define('IM_ROOT', dirname(__FILE__));
 include_once(IM_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'install.php');
+$_IMC_OLD = $_IMC;
+include_once(IM_ROOT.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'config.php');
+$_IMC = array_merge($_IMC, $_IMC_OLD);
 define('PRODUCT_ROOT', dirname(IM_ROOT));
 $im_config_file = IM_ROOT.DIRECTORY_SEPARATOR.'config.php';
 $unwritable_paths = select_unwritable_path(array($im_config_file));

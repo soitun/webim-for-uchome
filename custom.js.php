@@ -58,11 +58,14 @@ $setting = json_encode(setting());
 	}), im = ui.im;
 	ui.addApp("menu", {"data": menu});
 	//rm shortcut in uchome
-	//ui.layout.addShortcut( menu);
+	if(<?php var_export(!!$_IMC['enable_shortcut']); ?>)ui.layout.addShortcut(menu);
 	ui.addApp("buddy");
 	ui.addApp("room");
 	ui.addApp("notification");
 	ui.addApp("setting", {"data": webim.setting.defaults.data});
+	if(<?php echo var_export(!$_IMC['disable_chatlink']) ?>)ui.addApp("chatlink", {
+		off_link_class: /r_option|spacelink/i
+	});
 	ui.render();
         im.autoOnline() && im.online();
 
