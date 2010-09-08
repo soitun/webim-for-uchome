@@ -75,6 +75,7 @@ function online_buddy(){
 
 
 function complete_status($members){
+	global $_SGLOBAL;
 	if(!empty($members)){                
 		$num = count($members);                
 		$ids = array();
@@ -85,6 +86,16 @@ function complete_status($members){
 			$ids[] = $id;
 			$ob[$id] = $m;
 			$m->status = "";
+		}
+		$ids = implode(",", $ids);
+		$query = $_SGLOBAL['db']-> query($q="SELECT t.uid, t.message FROM " . tname("doing") . " t 
+			INNER JOIN (SELECT max(doid) doid 
+			FROM " . tname("doing") . "  
+			WHERE uid IN ($ids)
+			GROUP BY uid) t2 
+			ON t2.doid = t.doid;");
+		while ($value = $_SGLOBAL['db']->fetch_array($query)) {
+			$ob[$value['uid']]->status = $value['message'];
 		}
 	}
 	return $members;
