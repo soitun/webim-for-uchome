@@ -3,7 +3,7 @@ include('config_common.php');
 
 $theme = $_IMC['theme'];
 $path = dirname(__FILE__).DIRECTORY_SEPARATOR."static".DIRECTORY_SEPARATOR."themes";
-$files = scandir($path);
+$files = scan_subdir($path);
 $html = '<h3 id="header-title">主题选择</h3><ul id="themes">';
 foreach ($files as $k => $v){
 	$t_path = $path.DIRECTORY_SEPARATOR.$v;

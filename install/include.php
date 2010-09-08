@@ -1,6 +1,7 @@
 <?php
 define('IM_ROOT', dirname(dirname(__FILE__)));
 include_once(IM_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'install.php');
+include_once(IM_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'util.php');
 define('PRODUCT_ROOT', dirname(IM_ROOT));
 $im_config_file = IM_ROOT.DIRECTORY_SEPARATOR.'config.php';
 $product_config_file = PRODUCT_ROOT.DIRECTORY_SEPARATOR.'config.php';
@@ -30,7 +31,7 @@ if(file_exists($im_config_file)){
 $template_dir = PRODUCT_ROOT.DIRECTORY_SEPARATOR.'template';
 $templates = array();
 $tmp_name = basename($template_file);
-foreach(scandir($template_dir) as $k => $v){
+foreach(scan_subdir($template_dir) as $k => $v){
 	$d = $template_dir.DIRECTORY_SEPARATOR.$v;
 	$f = $d.DIRECTORY_SEPARATOR.'footer.htm';
 	$t = $d.DIRECTORY_SEPARATOR.$tmp_name;
