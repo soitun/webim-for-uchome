@@ -57,17 +57,19 @@ function im_tname($name) {
 function online_buddy(){
 	global $groups, $user, $_SGLOBAL;
 	$list = array();
-	$query = $_SGLOBAL['db']->query("SELECT f.fuid, f.fusername, f.gid FROM ".tname('friend')." f, ".tname('session')." s
-		WHERE f.uid='$user->uid' AND f.fuid = s.uid ORDER BY f.num DESC, f.dateline DESC");
+	$query = $_SGLOBAL['db']->query("SELECT m.uid, m.username, m.name, f.gid 
+		FROM ".tname('friend')." f, ".tname('session')." s, ".tname('space')." m
+		WHERE f.uid='$user->uid' AND f.fuid = s.uid AND m.uid = s.uid
+		ORDER BY f.num DESC, f.dateline DESC");
 	while ($value = $_SGLOBAL['db']->fetch_array($query)){
 		$list[] = (object)array(
-			"uid" => $value['fuid'],
-			"id" => $value['fusername'],
-			"nick" => $value['fusername'],
+			"uid" => $value['uid'],
+			"id" => $value['username'],
+			"nick" => nick($value),
 			"group" => $groups[$value['gid']],
-			"url" => "home.php?mod=space&uid=".$value['fuid'],
+			"url" => "home.php?mod=space&uid=".$value['uid'],
 			'default_pic_url' => UC_API.'/images/noavatar_small.gif',
-			"pic_url" => avatar($value['fuid'], 'small', true),
+			"pic_url" => avatar($value['uid'], 'small', true),
 		);
 	}
 	return $list;
@@ -121,8 +123,6 @@ function buddy($names, $uids = null) {
 		LEFT OUTER JOIN ".tname('friend')." f ON f.uid = '$user->uid' AND m.uid = f.fuid 
 		WHERE m.uid <> $user->uid AND $where_sql");
 	while ($value = $_SGLOBAL['db']->fetch_array($query)) {
-		$id = $value['username'];
-		$nick = nick($value);
 		if(empty($value['fuid'])) {
 			$group = "stranger";
 		}else {
@@ -131,8 +131,8 @@ function buddy($names, $uids = null) {
 		}
 		$buddies[]=(object)array(
 			'uid'=>$value['uid'],
-			'id'=> $id,
-			'nick'=> $nick,
+			'id'=> $value['username'],
+			'nick'=> nick($value),
 			'pic_url' =>avatar($value['uid'],"small",true),
 			'status'=>'' ,
 			'status_time'=>'',
