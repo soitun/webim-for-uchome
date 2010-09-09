@@ -12,7 +12,7 @@ $menu = array(
 if($_SCONFIG['my_status']) {
 	if(is_array($_SGLOBAL['userapp'])) { 
 		foreach($_SGLOBAL['userapp'] as $value) { 
-			$menu[] = array("title" => iconv(UC_DBCHARSET,'utf-8',$value['appname']),"icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
+			$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
 		}
 	}
 }
