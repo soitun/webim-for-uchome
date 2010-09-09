@@ -15,6 +15,11 @@ if($_SCONFIG['my_status']) {
 			$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
 		}
 	}
+	if(is_array($_SGLOBAL['my_menu'])) { 
+		foreach($_SGLOBAL['my_menu'] as $value) { 
+			$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
+		}
+	}
 }
 $setting = json_encode(setting());
 
