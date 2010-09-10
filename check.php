@@ -10,4 +10,5 @@ echo file_get_contents("http://www.webim20.cn/robots.txt");
 
 $im = new WebIM($user, null, $_IMC['domain'], $_IMC['apikey'], $_IMC['host'], $_IMC['port']);
 
+echo "\n\n\nIM Connnect... \n\n\n";
 print_r($im->check_connect());
