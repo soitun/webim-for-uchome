@@ -89,7 +89,6 @@ function complete_status($members){
 				$ids[] = $id;
 				$ob[$id] = $m;
 			}
-			$m->status = "";
 		}
 		$ids = implode(",", $ids);
 		$query = $_SGLOBAL['db']-> query($q="SELECT t.uid, t.message FROM " . tname("doing") . " t 
