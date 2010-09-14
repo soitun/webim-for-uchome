@@ -85,8 +85,10 @@ function complete_status($members){
 		for($i = 0; $i < $num; $i++){
 			$m = $members[$i];
 			$id = $m->uid;
-			$ids[] = $id;
-			$ob[$id] = $m;
+			if ( $id ) {
+				$ids[] = $id;
+				$ob[$id] = $m;
+			}
 			$m->status = "";
 		}
 		$ids = implode(",", $ids);
