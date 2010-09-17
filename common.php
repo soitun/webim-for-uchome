@@ -13,7 +13,7 @@ if(empty($_SGLOBAL['supe_uid'])) {
 if(!$is_login)exit('Login at first.');
 $user->uid = $space['uid'];
 $user->id = to_utf8($space['username']);
-$user->nick = to_utf8($space['username']);
+$user->nick = to_utf8(nick($space));
 $user->pic_url = avatar($user->uid,"small",true);
 $user->default_pic_url=UC_API.'/images/noavatar_small.gif';
 $user->show = gp('show') ? gp('show') : "available";
