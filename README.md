@@ -14,6 +14,8 @@ WebIM For UChome
 
 为了和bbs同步历史记录,安装时会添加历史记录数据库到ucenter数据,请确保ucenter数据库在您所安装的服务器并且可以链接.
 
+WebIM连接时需要访问WebIM服务器, 请确保您的php环境是否可连接外部网络, 空间服务商是否打开allow\_url\_fopen.
+
 首先将下载文件解压到UChome根目录
 
 	.
