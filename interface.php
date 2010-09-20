@@ -301,14 +301,15 @@ function nick( $sp ) {
 }
 
 function to_utf8( $s ) {
-	if( strtoupper( CHARSET ) == 'UTF-8' ) {
+	global $_SC;
+	if( strtoupper( $_SC['charset'] ) == 'UTF-8' ) {
 		return $s;
 	} else {
 		if ( function_exists( 'iconv' ) ) {
-			return iconv( CHARSET, 'utf-8', $s );
+			return iconv( $_SC['charset'], 'utf-8', $s );
 		} else {
 			require_once 'class_chinese.php';
-			$chs = new Chinese( CHARSET, 'utf-8' );
+			$chs = new Chinese( $_SC['charset'], 'utf-8' );
 			return $chs->Convert( $s );
 		}
 	}
