@@ -50,12 +50,12 @@ $ucdata = uc_pm_list($user->uid, 1, 20, "inbox", "newpm", 150);
 
 foreach($ucdata['data'] as $pm) {
     if ($pm['msgfromid'] > 0) {
-        $from=to_utf8($pm['msgfrom']);
-        $text=to_utf8($pm['msgfrom']." 给你发了一条消息！");
+        $from=$pm['msgfrom'];
+        $text=$pm['msgfrom']." 给你发了一条消息！");
         $link= 'space.php?do=pm&filter=newpm&uid='.$pm['touid'].'&filter=newpm&daterange='.$pm['daterange'];
     }else {
         $from='';
-        $text=to_utf8("系统信息：".$pm['subject']);
+        $text="系统信息：".$pm['subject'];
         $link= 'space.php?do=pm&filter=newpm?pmid='.$pm['pmid'].'&filter=systempm';
     }
         $pmlist[]= array('from'=>$from,'text'=>$text,'link'=>$link,'time'=>$pm['dateline']);
