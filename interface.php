@@ -109,7 +109,7 @@ function webim_get_online_buddies() {
 			"id" => $value['username'],
 			"nick" => nick($value),
 			"group" => $friend_groups[$value['gid']],
-			"url" => "home.php?mod=space&uid=".$value['uid'],
+			"url" => "space.php?uid=".$value['uid'],
 			'default_pic_url' => UC_API.'/images/noavatar_small.gif',
 			"pic_url" => avatar($value['uid'], 'small', true),
 		);
