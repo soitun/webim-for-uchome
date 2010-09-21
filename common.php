@@ -9,17 +9,24 @@ if ( version_compare( PHP_VERSION, '4.3', '<' ) ) {
 	die( sprintf( 'Your server is running PHP version %s but webim requires at least 4.3', PHP_VERSION ) );
 }
 
+// Modify error reporting levels to exclude PHP notices
+if( isset( $_GET['webim_debug'] ) ) {
+	error_reporting( -1 );
+	if ( !defined( 'WEBIMDB_DEBUG' ) )
+		define( 'WEBIMDB_DEBUG', true );
+} else {
+	error_reporting( E_ALL ^ E_NOTICE );
+}
+
 if ( !defined( 'WEBIM_PATH' ) ) 
 	define( 'WEBIM_PATH', dirname( __FILE__ ) . '/' );
 
 if ( !defined( 'WEBIMDB_DEBUG' ) )
-	define( 'WEBIMDB_DEBUG', true );
+	define( 'WEBIMDB_DEBUG', false );
 
 if ( !defined( 'WEBIMDB_CHARSET' ) )
 	define( 'WEBIMDB_CHARSET', 'utf8' );
 
-// Modify error reporting levels to exclude PHP notices
-error_reporting( E_ALL ^ E_NOTICE );
 
 require_once( WEBIM_PATH . 'lib/functions.helper.php' );
 require_once( WEBIM_PATH . 'lib/functions.json.php' );
@@ -57,6 +64,7 @@ require_once( WEBIM_PATH . 'interface.php' );
 $imdb = new webim_db( $_IMC['dbuser'], $_IMC['dbpassword'], $_IMC['dbname'], $_IMC['dbhost'] );
 $imdb->set_prefix( $_IMC['dbtable_prefix'] );
 $imdb->add_tables( array( 'webim_settings', 'webim_histories' ) );
+
 if ( $im_is_login ) {
 	$imticket = webim_gp( 'ticket' );
 	if( $imticket ) {

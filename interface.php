@@ -23,7 +23,7 @@ require_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'common.php');
 //Find and insert data with utf8 client.
 $_SGLOBAL['db']->query("SET NAMES utf8");
 
-require 'config.php';
+@include_once( 'config.php' );
 
 /**
  *
@@ -64,8 +64,8 @@ if(empty($_SGLOBAL['supe_uid'])) {
 	webim_set_user();
 }
 
-function webim_set_user(){
-	global $space, $imuser;
+function webim_set_user() {
+	global $space, $imuser, $im_is_admin;
 	$imuser->uid = $space['uid'];
 	$imuser->id = $space['username'];
 	$imuser->nick = nick($space);
@@ -74,6 +74,11 @@ function webim_set_user(){
 	$imuser->show = webim_gp('show') ? webim_gp('show') : "available";
 	$imuser->url = "space.php?uid=".$imuser->uid;
 	complete_status( array( $imuser ) );
+	if( ckfounder( $imuser->uid ) ){
+		$im_is_admin = true;
+	} else {
+		$im_is_admin = false;
+	}
 }
 
 function webim_login( $username, $password, $question = "", $answer = "" ) {
@@ -91,7 +96,7 @@ foreach($friend_groups as $k => $v){
  * Online buddy list.
  *
  */
-function webim_get_online_buddies(){
+function webim_get_online_buddies() {
 	global $friend_groups, $imuser, $_SGLOBAL;
 	$list = array();
 	$query = $_SGLOBAL['db']->query("SELECT m.uid, m.username, m.name, f.gid 
@@ -122,7 +127,7 @@ function webim_get_online_buddies(){
  *
  */
 
-function webim_get_buddies( $names, $uids = null ){
+function webim_get_buddies( $names, $uids = null ) {
 	global $_SGLOBAL, $imuser, $friend_groups;
 	$where_name = "";
 	$where_uid = "";
@@ -168,7 +173,7 @@ function webim_get_buddies( $names, $uids = null ){
  *
  */
 
-function webim_get_rooms($ids=null){
+function webim_get_rooms($ids=null) {
 	global $_SGLOBAL,$imuser;
 	$rooms = array();
 	$query = $_SGLOBAL['db']->query("SELECT t.tagid, t.membernum, t.tagname, t.pic
