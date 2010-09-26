@@ -62,6 +62,12 @@ require_once( WEBIM_PATH . 'interface.php' );
 
 /** $imdb, $imuser, $imclient, $_IMC */
 $imdb = new webim_db( $_IMC['dbuser'], $_IMC['dbpassword'], $_IMC['dbname'], $_IMC['dbhost'] );
+
+// Die if MySQL is not new enough
+if ( version_compare($imdb->db_version(), '4.1.2', '<') ) {
+	die( sprintf( 'WebIM requires MySQL 4.1.2 or higher' ) );
+}
+
 $imdb->set_prefix( $_IMC['dbtable_prefix'] );
 $imdb->add_tables( array( 'webim_settings', 'webim_histories' ) );
 

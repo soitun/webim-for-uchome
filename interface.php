@@ -21,7 +21,7 @@
 require_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'common.php');
 
 //Find and insert data with utf8 client.
-$_SGLOBAL['db']->query("SET NAMES utf8");
+@$_SGLOBAL['db']->query("SET NAMES utf8");
 
 @include_once( 'config.php' );
 
@@ -319,4 +319,5 @@ function to_utf8( $s ) {
 		}
 	}
 }
+
 

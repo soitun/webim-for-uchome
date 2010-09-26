@@ -43,7 +43,7 @@ EOF;
 		<div class="box">
 			<h3>卸载WebIM</h3>
 			<div class="box-c">
-			<p class="box-desc">卸载WebIM会自动从模板文件中删除webim代码<br /> 不会删除数据库中的数据<br /> 真的要卸载吗？</p>
+			<p class="box-desc">卸载WebIM会自动从模板文件中删除webim代码, 但不会删除数据库中的数据<br /><br /> 真的要卸载吗？</p>
 			<form action="" method="post" class="form">
 			<p><input class="text" type="hidden" value="1" name="uninstall"/></p>
 			<p class="actions"><input type="submit" class="submit" value="卸载" /></p>
