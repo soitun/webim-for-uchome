@@ -1,8 +1,9 @@
 <?php
 
-/**
- *
- */
+$im_version = '@VERSION';
+
+if ( !defined( 'WEBIM_PATH' ) ) 
+	define( 'WEBIM_PATH', dirname( __FILE__ ) . '/' );
 
 // Die if PHP is not new enough
 if ( version_compare( PHP_VERSION, '4.3', '<' ) ) {
@@ -17,9 +18,6 @@ if( isset( $_GET['webim_debug'] ) ) {
 } else {
 	error_reporting( E_ALL ^ E_NOTICE );
 }
-
-if ( !defined( 'WEBIM_PATH' ) ) 
-	define( 'WEBIM_PATH', dirname( __FILE__ ) . '/' );
 
 if ( !defined( 'WEBIMDB_DEBUG' ) )
 	define( 'WEBIMDB_DEBUG', false );
@@ -59,6 +57,10 @@ require_once( WEBIM_PATH . 'interface.php' );
 /**
  * $im_params = array_merge( $_GET, $_POST );
  */
+
+if( $_IMC["host_from_domain"] ){
+	$_IMC["host"] = $_SERVER['HTTP_HOST'];
+}
 
 /** $imdb, $imuser, $imclient, $_IMC */
 $imdb = new webim_db( $_IMC['dbuser'], $_IMC['dbpassword'], $_IMC['dbname'], $_IMC['dbhost'] );

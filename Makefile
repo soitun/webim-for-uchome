@@ -13,10 +13,11 @@ REPLACE_VER= sed s/@VERSION/${VERSION}/
 
 SRC_FILES = ${SRC_DIR}/*.php \
 	    ${SRC_DIR}/*.md \
-	    ${SRC_DIR}/*.css \
+	    ${SRC_DIR}/*.js \
 	    ${SRC_DIR}/lib \
 	    ${SRC_DIR}/static \
-	    ${SRC_DIR}/install \
+	    ${SRC_DIR}/admin \
+	    ${SRC_DIR}/table \
 
 all: ${REL_FILE}
 	@@echo "Build complete."
@@ -34,7 +35,8 @@ ${CACHE_DIR}: ${LIB_DIR}/webim.class.php
 	@@rm -rf ${CACHE_DIR}/lib/.git
 	@@rm -rf ${CACHE_DIR}/config.php
 	@@echo "Change version"
-	@@cat ${SRC_DIR}/install/config.php | ${REPLACE_VER} > ${CACHE_DIR}/install/config.php
+	@@cat ${SRC_DIR}/config_sample.php | ${REPLACE_VER} > ${CACHE_DIR}/config_sample.php
+	@@cat ${SRC_DIR}/common.php | ${REPLACE_VER} > ${CACHE_DIR}/common.php
 
 ${DIST_DIR}:
 	@@echo "Create distribution directory"
