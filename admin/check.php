@@ -2,15 +2,19 @@
 
 header("Content-type: application/javascript");
 require_once( dirname( __FILE__ ) . '/' . 'admin_common.php' );
+echo "IM Config\n-------------------------\n";
+echo "domain: '" . $_IMC['domain'] . "'\n";
+echo "host: '" . $_IMC['host'] . "'\n";
+echo "port: '" . $_IMC['port'] . "'\n";
 
-echo "\n\nIM Config \n";
-echo "'" . $_IMC['domain'] . "'\n";
-echo "'" . $_IMC['host'] . "'\n";
-echo "'" . $_IMC['port'] . "'\n";
+echo "\n\nAllow url fopen\n-------------------------\n";
+echo ini_get('allow_url_fopen') ? "On" : "Off";
 
-echo "\n\n\nIM check online \n";
-print_r($imclient->check_connect());
+echo "\n\nIM check online\n-------------------------\n";
+$data = $imclient->check_connect();
+echo $data->success ? "Success" : "Faild";
 
-echo "Test for port 80\n";
-echo file_get_contents("http://www.webim20.cn");
+echo "\n\nTest for port 80\n-------------------------\n";
+$content = file_get_contents("http://www.google.com");
+echo empty( $content ) ? "Faild" : "Success";
 
