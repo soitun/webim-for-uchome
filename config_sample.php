@@ -16,6 +16,7 @@ $_IMC["enable_shortcut"] = false;//支持工具栏快捷方式
 $_IMC["emot"] = "default";//表情主题
 $_IMC["opacity"] = 80;//toolbar背景透明度设置
 $_IMC['disable_menu'] = false; //隐藏工具条
+$_IMC['disable_login'] = false; //禁止从im登录
 $_IMC["host_from_domain"] = false; //设定im服务器为访问域名,当独立部署时,公网内网同时访问时用
 
 ?>

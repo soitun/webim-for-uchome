@@ -5,6 +5,7 @@
  *
  * Provide 
  *
+ * define WEBIM_PRODUCT_NAME
  * array $_IMC
  * boolean $im_is_admin
  * boolean $im_is_login
@@ -17,6 +18,8 @@
  * function webim_login()
  *
  */
+
+define( 'WEBIM_PRODUCT_NAME', 'uchome' );
 
 require_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'common.php');
 
@@ -60,17 +63,17 @@ if(empty($_SGLOBAL['supe_uid'])) {
 	$im_is_login = false;
 } else {
 	$im_is_login = true;
-	$space = getspace($_SGLOBAL['supe_uid']);
 	webim_set_user();
 }
 
 function webim_set_user() {
-	global $space, $imuser, $im_is_admin;
+	global $_SGLOBAL, $imuser, $im_is_admin;
+	$space = getspace($_SGLOBAL['supe_uid']);
 	$imuser->uid = $space['uid'];
 	$imuser->id = $space['username'];
-	$imuser->nick = nick($space);
-	$imuser->pic_url = avatar($imuser->uid,"small",true);
-	$imuser->default_pic_url=UC_API.'/images/noavatar_small.gif';
+	$imuser->nick = nick( $space );
+	$imuser->pic_url = avatar( $imuser->uid, "small", true );
+	$imuser->default_pic_url = UC_API.'/images/noavatar_small.gif';
 	$imuser->show = webim_gp('show') ? webim_gp('show') : "available";
 	$imuser->url = "space.php?uid=".$imuser->uid;
 	complete_status( array( $imuser ) );
@@ -82,8 +85,67 @@ function webim_set_user() {
 }
 
 function webim_login( $username, $password, $question = "", $answer = "" ) {
-	global $imuser, $_G, $im_is_login;
-	return false;
+	global $imuser, $_SGLOBAL, $im_is_login;
+	include_once(S_ROOT.'./source/function_cp.php');
+	$cookietime = intval($_POST['cookietime']);
+	$cookiecheck = $cookietime?' checked':'';
+	$membername = $username;
+
+	if(empty($username)) {
+		return false;
+	}
+
+	//同步获取用户源
+	if(!$passport = getpassport($username, $password)) {
+		return false;
+	}
+
+	$setarr = array(
+		'uid' => $passport['uid'],
+		'username' => addslashes($passport['username']),
+		'password' => md5("$passport[uid]|$_SGLOBAL[timestamp]")//本地密码随机生成
+	);
+
+	include_once(S_ROOT.'./source/function_space.php');
+	//开通空间
+	$query = $_SGLOBAL['db']->query("SELECT * FROM ".tname('space')." WHERE uid='$setarr[uid]'");
+	if(!$space = $_SGLOBAL['db']->fetch_array($query)) {
+		$space = space_open($setarr['uid'], $setarr['username'], 0, $passport['email']);
+	}
+
+	$_SGLOBAL['member'] = $space;
+
+	//实名
+	realname_set($space['uid'], $space['username'], $space['name'], $space['namestatus']);
+
+	//检索当前用户
+	$query = $_SGLOBAL['db']->query("SELECT password FROM ".tname('member')." WHERE uid='$setarr[uid]'");
+	if($value = $_SGLOBAL['db']->fetch_array($query)) {
+		$setarr['password'] = addslashes($value['password']);
+	} else {
+		//更新本地用户库
+		inserttable('member', $setarr, 0, true);
+	}
+
+	//清理在线session
+	insertsession($setarr);
+
+	//设置cookie
+	ssetcookie('auth', authcode("$setarr[password]\t$setarr[uid]", 'ENCODE'), $cookietime);
+	ssetcookie('loginuser', $passport['username'], 31536000);
+	ssetcookie('_refer', '');
+
+	//同步登录
+	if($_SCONFIG['uc_status']) {
+		include_once S_ROOT.'./uc_client/client.php';
+		$ucsynlogin = uc_user_synlogin($setarr['uid']);
+	} else {
+		$ucsynlogin = '';
+	}
+	realname_get();
+	$im_is_login = true;
+	webim_set_user();
+	return true;
 }
 
 //Cache friend_groups;

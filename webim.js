@@ -14,7 +14,8 @@
 	webim.setting.defaults.url = path + "im.php?webim_action=setting";
 	webim.history.defaults.urls = {
 		load: path + "im.php?webim_action=history",
-		clear: path + "im.php?webim_action=clear_history"
+		clear: path + "im.php?webim_action=clear_history",
+		download: path + "im.php?webim_action=download_history"
 	};
 	webim.room.defaults.urls = {
 		member: path + "im.php?webim_action=members",
@@ -40,7 +41,10 @@
 	if( _IMC.menu ) ui.addApp("menu", { "data": _IMC.menu } );
 	if( _IMC.enable_shortcut ) ui.layout.addShortcut( _IMC.menu );
 
-	ui.addApp("buddy");
+	ui.addApp("buddy", {
+		is_login: _IMC['is_login'],
+		loginOptions: _IMC['login_options']
+	} );
 	ui.addApp("room");
 	ui.addApp("notification");
 	ui.addApp("setting", {"data": webim.setting.defaults.data});
@@ -48,5 +52,5 @@
 		off_link_class: /r_option|spacelink/i
 	});
 	ui.render();
-	im.autoOnline() && im.online();
+	_IMC['is_login'] && im.autoOnline() && im.online();
 })(webim);

@@ -73,13 +73,11 @@ if ( version_compare($imdb->db_version(), '4.1.2', '<') ) {
 $imdb->set_prefix( $_IMC['dbtable_prefix'] );
 $imdb->add_tables( array( 'webim_settings', 'webim_histories' ) );
 
-if ( $im_is_login ) {
-	$imticket = webim_gp( 'ticket' );
-	if( $imticket ) {
-		$imticket = stripslashes($imticket);
-	}
-	$imclient = new webim_client( $imuser, $imticket, $_IMC['domain'], $_IMC['apikey'], $_IMC['host'], $_IMC['port'] );
-	unset( $imticket );
+$imticket = webim_gp( 'ticket' );
+if( $imticket ) {
+	$imticket = stripslashes($imticket);
 }
+$imclient = new webim_client( $imuser, $imticket, $_IMC['domain'], $_IMC['apikey'], $_IMC['host'], $_IMC['port'] );
+unset( $imticket );
 
 ?>

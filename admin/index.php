@@ -10,6 +10,12 @@ if ( ! isset( $_IMC['version'] ) ) {
 	exit();
 }
 
+/** Check update */
+if ( version_compare( $_IMC['version'], $im_version, "<" ) ) {
+	header("Location: update.php");
+	exit();
+}
+
 $unwritable_paths = webim_select_unwritable_path( false );
 
 $msg = "";

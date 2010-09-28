@@ -2,7 +2,7 @@
 
 include_once( 'common.php' );
 
-$webim_actions = array("online", "offline", "message", "presence", "history", "status", "members", "join", "leave", "buddies", "rooms", "refresh", "clear_history", "setting", "notifications");
+$webim_actions = array("online", "offline", "message", "presence", "history", "status", "members", "join", "leave", "buddies", "rooms", "refresh", "clear_history", "setting", "notifications", "download_history");
 $webim_skip_login_actions = array("online");
 
 $webim_action = webim_gp( "webim_action" );

@@ -1,9 +1,11 @@
 <?php
 
 include_once('common.php');
-if ( !$im_is_login ) {
+
+if ( !$im_is_login && $_IMC['disable_login'] ) {
 	exit('"Please login at first."');
 }
+
 header("Content-type: application/javascript");
 /** set no cache in IE */
 header("Cache-Control: no-cache");
@@ -24,9 +26,11 @@ if ( !$_IMC['disable_menu'] )
 
 ?>
 var _IMC = {
-production_name: "uchome",
+production_name: '<?php echo WEBIM_PRODUCT_NAME ?>',
 version: '<?php echo $_IMC['version']; ?>',
 path: '<?php echo $webim_path; ?>',
+is_login: '<?php echo $im_is_login ? "1" : "" ?>',
+login_options: <?php echo json_encode( array("notice" => "使用uchome帐号登录", "questions" => null) ); ?>,
 user: <?php echo $imuser ? $imuser : '""'; ?>,
 setting: <?php echo $setting ? $setting : '""'; ?>,
 menu: <?php echo !$_IMC['disable_menu'] ? $menu : '""'; ?>,
