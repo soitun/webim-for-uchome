@@ -59,11 +59,18 @@ $_IMC['dbcharset'] = UC_DBCHARSET;
  *
  */
 
+$site_url = dirname( webim_urlpath() ) . "/";
+
 if(empty($_SGLOBAL['supe_uid'])) {
 	$im_is_login = false;
 } else {
 	$im_is_login = true;
 	webim_set_user();
+}
+
+function profile_url( $id ) {
+	global $site_url;
+	return $site_url . "space.php?uid=" . $id;
 }
 
 function webim_set_user() {
@@ -75,7 +82,7 @@ function webim_set_user() {
 	$imuser->pic_url = avatar( $imuser->uid, "small", true );
 	$imuser->default_pic_url = UC_API.'/images/noavatar_small.gif';
 	$imuser->show = webim_gp('show') ? webim_gp('show') : "available";
-	$imuser->url = "space.php?uid=".$imuser->uid;
+	$imuser->url = profile_url( $imuser->uid );
 	complete_status( array( $imuser ) );
 	if( ckfounder( $imuser->uid ) ){
 		$im_is_admin = true;
@@ -171,7 +178,7 @@ function webim_get_online_buddies() {
 			"id" => $value['username'],
 			"nick" => nick($value),
 			"group" => $friend_groups[$value['gid']],
-			"url" => "space.php?uid=".$value['uid'],
+			"url" => profile_url($value['uid']),
 			'default_pic_url' => UC_API.'/images/noavatar_small.gif',
 			"pic_url" => avatar($value['uid'], 'small', true),
 		);
@@ -221,7 +228,7 @@ function webim_get_buddies( $names, $uids = null ) {
 			'pic_url' =>avatar($value['uid'],"small",true),
 			'status'=>'' ,
 			'status_time'=>'',
-			'url'=>'space.php?uid='.$value['uid'],
+			'url'=>profile_url($value['uid']),
 			'group'=> $group,
 			'default_pic_url' => UC_API.'/images/noavatar_small.gif');
 	}
@@ -236,7 +243,7 @@ function webim_get_buddies( $names, $uids = null ) {
  */
 
 function webim_get_rooms($ids=null) {
-	global $_SGLOBAL,$imuser;
+	global $_SGLOBAL,$imuser, $site_url;
 	$rooms = array();
 	$query = $_SGLOBAL['db']->query("SELECT t.tagid, t.membernum, t.tagname, t.pic
 		FROM ".tname('tagspace')." main
@@ -246,41 +253,41 @@ function webim_get_rooms($ids=null) {
 		$tagid = $value['tagid'];
 		$id = $tagid;
 		$tagname = $value['tagname'];
-		$pic = empty($value['pic']) ? 'image/nologo.jpg' : $value['pic'];
+		$pic = empty($value['pic']) ? $site_url . 'image/nologo.jpg' : $site_url . $value['pic'];
 		$rooms[$id]=(object)array('id'=>$id,
 			'nick'=> $tagname,
 			'pic_url'=>$pic,
 			'status'=>'',
 			'status_time'=>'',
 			'all_count' => $value['membernum'],
-			'url'=>'space.php?do=mtag&tagid='.$tagid,
+			'url'=>$site_url . 'space.php?do=mtag&tagid='.$tagid,
 			'count'=>"");
 	}
 	return $rooms;
 }
 
 function webim_get_notifications(){
-	global $_SGLOBAL;
+	global $_SGLOBAL, $site_url;
 	include_once S_ROOT.'./uc_client/client.php';
 	$pmlist = array();
 	$member = $_SGLOBAL['member'];
 	if($member['notenum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/notice.gif" width="16" alt="" /><strong>'.$member["notenum"].'</strong> 个新通知'),"link"=>"space.php?do=notice");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/notice.gif" width="16" alt="" /><strong>'.$member["notenum"].'</strong> 个新通知'),"link"=>$site_url . "space.php?do=notice");
 	}
 	if($member['pokenum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/poke.gif" width="16" alt="" /><strong>'.$member["pokenum"].'</strong> 个新招呼'),"link"=>"cp.php?ac=poke");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/poke.gif" width="16" alt="" /><strong>'.$member["pokenum"].'</strong> 个新招呼'),"link"=>$site_url . "cp.php?ac=poke");
 	}
 	if($member['addfriendnum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/friend.gif" width="16" alt="" /><strong>'.$member["addfriendnum"].'</strong> 个好友请求'),"link"=>"cp.php?ac=friend&op=request");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/friend.gif" width="16" alt="" /><strong>'.$member["addfriendnum"].'</strong> 个好友请求'),"link"=>$site_url . "cp.php?ac=friend&op=request");
 	}
 	if($member['mtaginvitenum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/mtag.gif" width="16" alt="" /><strong>'.$member["mtaginvitenum"].'</strong> 个群组邀请'),"link"=>"cp.php?ac=mtag&op=mtaginvite");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/mtag.gif" width="16" alt="" /><strong>'.$member["mtaginvitenum"].'</strong> 个群组邀请'),"link"=>$site_url . "cp.php?ac=mtag&op=mtaginvite");
 	}
 	if($member['eventinvitenum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/event.gif" width="16" alt="" /><strong>'.$member["eventinvitenum"].'</strong> 个活动邀请'),"link"=>"cp.php?ac=event&op=eventinvite");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/event.gif" width="16" alt="" /><strong>'.$member["eventinvitenum"].'</strong> 个活动邀请'),"link"=>$site_url . "cp.php?ac=event&op=eventinvite");
 	}
 	if($member['myinvitenum']){
-		$pmlist[]=array("text"=>('<img src="image/icon/userapp.gif" width="16" alt="" /><strong>'.$member["myinvitenum"].'</strong> 个应用消息'),"link"=>"space.php?do=notice&view=userapp");
+		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/userapp.gif" width="16" alt="" /><strong>'.$member["myinvitenum"].'</strong> 个应用消息'),"link"=>$site_url . "space.php?do=notice&view=userapp");
 	}
 
 	$pmstatus = uc_pm_checknew($user->uid, 0);
@@ -291,11 +298,11 @@ function webim_get_notifications(){
 		if ($pm['msgfromid'] > 0) {
 			$from=$pm['msgfrom'];
 			$text=$pm['msgfrom']." 给你发了一条消息！";
-			$link= 'space.php?do=pm&filter=newpm&uid='.$pm['touid'].'&filter=newpm&daterange='.$pm['daterange'];
+			$link= $site_url . 'space.php?do=pm&filter=newpm&uid='.$pm['touid'].'&filter=newpm&daterange='.$pm['daterange'];
 		}else {
 			$from='';
 			$text="系统信息：".$pm['subject'];
-			$link= 'space.php?do=pm&filter=newpm?pmid='.$pm['pmid'].'&filter=systempm';
+			$link= $site_url . 'space.php?do=pm&filter=newpm?pmid='.$pm['pmid'].'&filter=systempm';
 		}
 		$pmlist[]= array('from'=>$from,'text'=>$text,'link'=>$link,'time'=>$pm['dateline']);
 	}
@@ -303,24 +310,24 @@ function webim_get_notifications(){
 }
 
 function webim_get_menu() {
-	global $_SCONFIG, $_SGLOBAL;
+	global $_SCONFIG, $_SGLOBAL, $site_url;
 	$menu = array(
-		array("title" => 'doing',"icon" =>"image/app/doing.gif","link" => "space.php?do=doing"),
-		array("title" => 'album',"icon" =>"image/app/album.gif","link" => "space.php?do=album"),
-		array("title" => 'blog',"icon" =>"image/app/blog.gif","link" => "space.php?do=blog"),
-		array("title" => 'thread',"icon" =>"image/app/mtag.gif","link" => "space.php?do=thread"),
-		array("title" => 'share',"icon" =>"image/app/share.gif","link" => "space.php?do=share")
+		array("title" => 'doing',"icon" =>$site_url . "image/app/doing.gif","link" => $site_url . "space.php?do=doing"),
+		array("title" => 'album',"icon" =>$site_url . "image/app/album.gif","link" => $site_url . "space.php?do=album"),
+		array("title" => 'blog',"icon" =>$site_url . "image/app/blog.gif","link" => $site_url . "space.php?do=blog"),
+		array("title" => 'thread',"icon" =>$site_url . "image/app/mtag.gif","link" => $site_url . "space.php?do=thread"),
+		array("title" => 'share',"icon" =>$site_url . "image/app/share.gif","link" => $site_url . "space.php?do=share")
 	);
 
 	if($_SCONFIG['my_status']) {
 		if(is_array($_SGLOBAL['userapp'])) { 
 			foreach($_SGLOBAL['userapp'] as $value) { 
-				$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
+				$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => $site_url . "userapp.php?id=".$value['appid']);
 			}
 		}
 		if(is_array($_SGLOBAL['my_menu'])) { 
 			foreach($_SGLOBAL['my_menu'] as $value) { 
-				$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => "userapp.php?id=".$value['appid']);
+				$menu[] = array("title" => to_utf8($value['appname']), "icon" =>"http://appicon.manyou.com/icons/".$value['appid'],"link" => $site_url . "userapp.php?id=".$value['appid']);
 			}
 		}
 	}

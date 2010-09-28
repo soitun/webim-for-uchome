@@ -9,7 +9,7 @@ $webim_action = webim_gp( "webim_action" );
 
 if ( $webim_action && in_array( $webim_action, $webim_actions ) ) {
 	if ( !$im_is_login && !in_array( $webim_action, $webim_skip_login_actions ) ) {
-		exit( "Please login at first" );
+		exit( "'Please login at first'" );
 	}
 	call_user_func( "webim_action_" . $webim_action );
 } else {
