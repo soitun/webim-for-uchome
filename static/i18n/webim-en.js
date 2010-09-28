@@ -84,6 +84,7 @@ webim.ui.i18n.store('en',{
 	"download history": "Download histories",
 	"font color": "Font color",
 	"Not Found": "Not Found",
+	"Forbidden": "Forbidden",
 	"Not Authorized" : "Not Authorized",
 	"IM Server Not Found": "IM Server Not Found",
 	"IM Server Not Authorized": "IM Server Not Authorized",

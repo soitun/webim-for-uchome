@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Tue Sep 28 17:22:56 2010 +0800
- * Commit: 36b5c3656f6eccc3e7f5bc8c5ff0298bf346bfdd
+ * Date: Tue Sep 28 19:17:56 2010 +0800
+ * Commit: b25e4d57eda97bf89f83dc318d9d1ed5491b9327
  */
 
 body {
@@ -917,6 +917,7 @@ a .webim-icon, a .ui-icon{
 .webim .webim-user-show p{
 	position: absolute;
 	z-index: 2;
+	margin-top: -60px;
 }
 
 .webim .webim-user-show p a{

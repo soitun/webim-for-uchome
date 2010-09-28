@@ -84,6 +84,7 @@ webim.ui.i18n.store('zh-CN',{
 	"download history": "\u4e0b\u8f7d\u5386\u53f2\u8bb0\u5f55",
 	"font color": "\u6587\u5b57\u989c\u8272",
 	"Not Found" : "\u8fde\u63a5\u7f51\u7edc\u5931\u8d25",
+	"Forbidden": "\u4e0d\u5141\u8bb8\u767b\u5f55",
 	"Not Authorized" : "\u767b\u5f55\u5931\u8d25",
 	"IM Server Not Found": "\u672a\u627e\u5230IM\u670d\u52a1\u5668",
         "IM Server Not Authorized": "\u767b\u5f55IM\u670d\u52a1\u5668\u5931\u8d25",
