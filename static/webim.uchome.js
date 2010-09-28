@@ -5,8 +5,8 @@
  * Copyright (c) 2010 Hidden
  * Released under the MIT, BSD, and GPL Licenses.
  *
- * Date: Tue Sep 28 19:17:21 2010 +0800
- * Commit: 3f0bb8922ea9a54ba2139a118c21467623019e29
+ * Date: Tue Sep 28 19:32:15 2010 +0800
+ * Commit: 0b2752a7bde44a89ba504019f3aa3ac5a75c5f43
  */
 (function(window, document, undefined){
 
@@ -1955,41 +1955,21 @@ model("history",{
 		});
 	},
 	download: function(type, id){
-		var self = this, options = self.options;
-		var now = (new Date()).getTime();
-		var f = document.createElement('iframe'), fid = "webim-download" + now; 
-		f.setAttribute( "id", fid );
-		f.setAttribute( "name", fid );
+		var self = this, 
+		options = self.options, 
+		url = options.urls.download,
+		now = (new Date()).getTime(), 
+		f = document.createElement('iframe'), 
+		d = new Date(),
+		ar = [],
+		data = {id: id, type: type, time: (new Date()).getTime(), date: d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate() };
+		for (var key in data ) {
+			ar[ ar.length ] = encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
+		}
+		url += (/\?/.test( url ) ? "&" : "?") + ar.join("&");
+		f.setAttribute( "src", url );
 		f.style.display = 'none'; 
 		document.body.appendChild(f); 
-		f = document.createElement('form'); 
-		f.style.display = 'none'; 
-		document.body.appendChild(f); 
-		f.setAttribute('method', 'GET'); 
-		f.setAttribute('action', options.urls.download); 
-		f.setAttribute('target', fid); 
-		var s = document.createElement('input'); 
-		s.setAttribute('type', 'hidden'); 
-		s.setAttribute('name', 'type'); 
-		s.setAttribute('value', type); 
-		f.appendChild(s);
-		s = document.createElement('input'); 
-		s.setAttribute('type', 'hidden'); 
-		s.setAttribute('name', 'id'); 
-		s.setAttribute('value', id); 
-		f.appendChild(s);
-		s = document.createElement('input'); 
-		s.setAttribute('type', 'hidden'); 
-		s.setAttribute('name', 'time'); 
-		s.setAttribute('value', now); 
-		f.appendChild(s);
-		s = document.createElement('input'); 
-		s.setAttribute('type', 'hidden'); 
-		s.setAttribute('name', 'date'); 
-		var d = new Date();
-		s.setAttribute('value', d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()); 
-		f.appendChild(s);
-		f.submit();
 	},
 	init: function(type, id, data){
 		var self = this;
