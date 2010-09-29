@@ -12,7 +12,7 @@ echo ini_get('allow_url_fopen') ? "On" : "Off";
 
 echo "\n\nIM check online\n-------------------------\n";
 $data = $imclient->check_connect();
-echo $data->success ? "Success" : "Faild";
+echo $data->success ? "Success" : ( "Faild: " . $data->error_msg );
 
 echo "\n\nTest for port 80\n-------------------------\n";
 $content = file_get_contents("http://www.google.com");
