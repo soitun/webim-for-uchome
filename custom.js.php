@@ -2,7 +2,8 @@
 
 include_once('common.php');
 
-if ( !$im_is_login && $_IMC['disable_login'] ) {
+if ( !$im_is_login ) {
+//if ( !$im_is_login && $_IMC['disable_login'] ) {
 	exit('"Please login at first."');
 }
 
