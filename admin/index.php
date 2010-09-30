@@ -60,11 +60,12 @@ echo webim_menu( 'index' );
 						<option value="en" <?php echo $_IMC['local'] == 'en' ? 'selected="selected"' : '' ?>>English</option>
 						</select>
 						</p>
-						<p class="clearfix"><label for="disable_room">关闭群组聊天：</label><input type="radio" value="1" name="disable_room" class="radio" id="disable_room_yes" <?php echo $_IMC['disable_room'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="disable_room" class="radio" id="disable_room_no" <?php echo $_IMC['disable_room'] ? '0' : 'checked="checked"'; ?>>否</p>
-						<p class="clearfix"><label for="disable_chatlink">关闭陌生人聊天：</label><input type="radio" value="1" name="disable_chatlink" class="radio" id="disable_chatlink_yes" <?php echo $_IMC['disable_chatlink'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="disable_chatlink" class="radio" id="disable_chatlink_no" <?php echo $_IMC['disable_chatlink'] ? '0' : 'checked="checked"'; ?>>否</p>
-						<p class="clearfix"><label for="disable_menu">隐藏工具栏：</label><input type="radio" value="1" name="disable_menu" class="radio" id="disable_menu_yes" <?php echo $_IMC['disable_menu'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="disable_menu" class="radio" id="disable_menu_no" <?php echo $_IMC['disable_menu'] ? '0' : 'checked="checked"'; ?>>否</p>
-						<p class="clearfix"><label for="enable_shortcut">开启快捷工具栏：</label><input type="radio" value="1" name="enable_shortcut" class="radio" id="enable_shortcut_yes" <?php echo $_IMC['enable_shortcut'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="enable_shortcut" class="radio" id="enable_shortcut_no" <?php echo $_IMC['enable_shortcut'] ? '0' : 'checked="checked"'; ?>>否</p>
-						<p class="clearfix"><label for="show_realname">显示真实姓名：</label><input type="radio" value="1" name="show_realname" class="radio" id="enable_shortcut_yes" <?php echo $_IMC['show_realname'] ? 'checked="checked"' : ''; ?>>是 &nbsp;<input type="radio" value="" name="show_realname" class="radio" id="enable_shortcut_no" <?php echo $_IMC['show_realname'] ? '0' : 'checked="checked"'; ?>>否</p>
+<?php echo webim_check_tag( "disable_room", $_IMC['disable_room'], "关闭群组聊天："); ?>
+<?php echo webim_check_tag( "disable_chatlink", $_IMC['disable_chatlink'], "关闭陌生人聊天："); ?>
+<?php echo webim_check_tag( "disable_menu", $_IMC['disable_menu'], "隐藏工具栏："); ?>
+<?php echo webim_check_tag( "enable_shortcut", $_IMC['enable_shortcut'], "开启快捷工具栏："); ?>
+<?php echo webim_check_tag( "show_realname", $_IMC['show_realname'], "显示真实姓名："); ?>
+<?php echo webim_check_tag( "enable_login", $_IMC['enable_login'], "支持从IM登录："); ?>
 						<p class="actions clearfix"><input type="submit" class="submit" value="提交" /></p>
 					</form>
 				</div>
@@ -74,4 +75,8 @@ echo webim_menu( 'index' );
 
 <?php
 echo webim_footer();
+
+function webim_check_tag( $name, $value, $text ) {
+	return '<p class="clearfix"><label for="' . $name . '">' . $text . '</label><input type="radio" value="1" name="' . $name . '" class="radio" id="' . $name . '_yes" ' . ( $value ? 'checked="checked"' : '' ) . '>是 &nbsp;<input type="radio" value="" name="' . $name . '" class="radio" id="' . $name . '_no" ' . ( $value ? '' : 'checked="checked"' ) . '>否</p>';
+}
 ?>

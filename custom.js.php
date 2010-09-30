@@ -2,17 +2,17 @@
 
 include_once('common.php');
 
-if ( !$im_is_login ) {
-//if ( !$im_is_login && $_IMC['disable_login'] ) {
-	exit('"Please login at first."');
-}
-
 header("Content-type: application/javascript");
 /** set no cache in IE */
 header("Cache-Control: no-cache");
 
 $webim_jsonp = isset( $_GET['remote'] ) || webim_is_remote();
 $webim_path = webim_urlpath();
+
+if ( !$im_is_login && !$_IMC['enable_login'] ) {
+	exit('"Please login at first."');
+}
+
 
 if ( $im_is_login ) {
 	$setting = json_encode( webim_get_settings() );
