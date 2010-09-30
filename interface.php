@@ -48,8 +48,9 @@ $_IMC['dbname'] = $_SC['dbname'];
 $_IMC['dbhost'] = $_SC['dbhost'];
 $prefix = explode(".", $_SC['tablepre'] );
 $_IMC['dbtable_prefix'] = count( $prefix ) == 2 ? $prefix[1] : $prefix[0];
-$_IMC['dbcharset'] = $_SC['charset'];
+$_IMC['dbcharset'] = UC_DBCHARSET;
 
+//$_SC['charset'] is utf-8
 /** ucenter db
 $_IMC['dbuser'] = UC_DBUSER;
 $_IMC['dbpassword'] = UC_DBPW;
