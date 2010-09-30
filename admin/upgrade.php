@@ -33,7 +33,7 @@ if ( isset( $_GET['success'] ) ) {
 				<a href="index.php">进入WebIM管理首页</a>
 			</p>
 			<p>
-				<a href="faq.php#install">查看WebIM更新说明</a>
+				<a href="changelog.php">查看WebIM更新说明</a>
 			</p>
 		</div>
 	</div>
