@@ -12,7 +12,7 @@ if ( ! isset( $_IMC['version'] ) ) {
 
 /** Check update */
 if ( version_compare( $_IMC['version'], $im_version, "<" ) ) {
-	header("Location: update.php");
+	header("Location: upgrade.php");
 	exit();
 }
 

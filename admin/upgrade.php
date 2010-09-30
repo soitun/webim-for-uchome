@@ -43,11 +43,11 @@ EOF;
 	webim_insert_template();
 	webim_update_db();
 	webim_clean_cache();
-	header("Location: update.php?success");
+	header("Location: upgrade.php?success");
 	exit();
 }
 
-echo webim_header( '更新' );
+echo webim_header( '升级' );
 
 echo $success ? webim_menu( '' ) . "<div id=content>$msg</div>" : $msg;
 
