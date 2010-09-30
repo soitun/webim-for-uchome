@@ -11,7 +11,7 @@ if ( version_compare( PHP_VERSION, '4.3', '<' ) ) {
 }
 
 // Modify error reporting levels to exclude PHP notices
-if( isset( $_GET['webim_debug'] ) ) {
+if( isset( $_IMC['debug'] ) ) {
 	error_reporting( -1 );
 	if ( !defined( 'WEBIMDB_DEBUG' ) )
 		define( 'WEBIMDB_DEBUG', true );
