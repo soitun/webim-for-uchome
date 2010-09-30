@@ -41,6 +41,16 @@ require_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'common.php');
  *
  */
 
+/** uchome db */
+$_IMC['dbuser'] = $_SC['dbuser'];
+$_IMC['dbpassword'] = $_SC['dbpw'];
+$_IMC['dbname'] = $_SC['dbname'];
+$_IMC['dbhost'] = $_SC['dbhost'];
+$prefix = explode(".", $_SC['tablepre'] );
+$_IMC['dbtable_prefix'] = count( $prefix ) == 2 ? $prefix[1] : $prefix[0];
+$_IMC['dbcharset'] = $_SC['charset'];
+
+/** ucenter db
 $_IMC['dbuser'] = UC_DBUSER;
 $_IMC['dbpassword'] = UC_DBPW;
 $_IMC['dbname'] = UC_DBNAME;
@@ -48,6 +58,7 @@ $_IMC['dbhost'] = UC_DBHOST;
 $prefix = explode(".", UC_DBTABLEPRE );
 $_IMC['dbtable_prefix'] = count( $prefix ) == 2 ? $prefix[1] : $prefix[0];
 $_IMC['dbcharset'] = UC_DBCHARSET;
+ */
 
 /**
  * Init im user.
@@ -388,5 +399,4 @@ function to_utf8( $s ) {
 		}
 	}
 }
-
 
