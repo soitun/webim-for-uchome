@@ -28,8 +28,8 @@ if( isset( $_POST['clear'] ) ){
 	default:
 		$ago = 0;
 	}
-	$ago = ( microtime( true ) - $ago ) * 1000;
-	$imdb->query( $imdb->prepare( "DELETE FROM $imdb->webim_histories WHERE `timestamp` < %d", $ago ) );
+	$ago = ( time() - $ago ) * 1000;
+	$imdb->query( $imdb->prepare( "DELETE FROM $imdb->webim_histories WHERE `timestamp` < %s", $ago ) );
 	header("Location: histories.php?success");
 	exit();
 }else{
