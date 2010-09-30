@@ -105,6 +105,7 @@ function webim_set_user() {
 
 function webim_login( $username, $password, $question = "", $answer = "" ) {
 	global $imuser, $_SGLOBAL, $im_is_login;
+	$username = from_utf8( $username );
 	include_once(S_ROOT.'./source/function_cp.php');
 	$cookietime = intval($_POST['cookietime']);
 	$cookiecheck = $cookietime?' checked':'';
@@ -396,6 +397,21 @@ function to_utf8( $s ) {
 		} else {
 			require_once 'class_chinese.php';
 			$chs = new Chinese( $_SC['charset'], 'utf-8' );
+			return $chs->Convert( $s );
+		}
+	}
+}
+
+function from_utf8( $s ) {
+	global $_SC;
+	if( strtoupper( $_SC['charset'] ) == 'UTF-8' ) {
+		return $s;
+	} else {
+		if ( function_exists( 'iconv' ) ) {
+			return iconv( 'utf-8', $_SC['charset'], $s );
+		} else {
+			require_once 'class_chinese.php';
+			$chs = new Chinese( 'utf-8', $_SC['charset'] );
 			return $chs->Convert( $s );
 		}
 	}
