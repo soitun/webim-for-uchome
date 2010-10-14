@@ -4,6 +4,8 @@ require_once( dirname( __FILE__ ) . '/' . 'admin_common.php' );
 
 webim_only_for_admin();
 
+webim_update_config( false );
+
 $unwritable_paths = webim_select_unwritable_path( true );
 $msg = "";
 $success = false;
