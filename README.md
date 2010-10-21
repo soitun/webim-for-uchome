@@ -39,3 +39,16 @@ WebIM For UChome
 3.	安装完成
 
 
+im服务器
+---------------------------
+
+国内
+
+im.webim20.cn:8000
+im.webim20.cn:80
+
+国外
+
+im.webim.us:8000
+im.webim.us:80
+
