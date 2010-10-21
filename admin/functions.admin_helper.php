@@ -82,7 +82,7 @@ function webim_update_db() {
 	webim_dbDelta( $im_queries );
 }
 
-function webim_update_config() {
+function webim_update_config( $save = true ) {
 	global $_IMC, $im_config_file, $im_config_sample_file;
 	$old = $_IMC;
 	include( $im_config_sample_file );
@@ -103,8 +103,10 @@ function webim_update_config() {
 			}
 		}
 	}
-	$markup = "<?php\n\$_IMC = ".var_export($new, true).";\n";
-	file_put_contents( $im_config_file, $markup );
+	if ( $save ) {
+		$markup = "<?php\n\$_IMC = ".var_export($new, true).";\n";
+		file_put_contents( $im_config_file, $markup );
+	}
 }
 
 function webim_clean_cache(){
