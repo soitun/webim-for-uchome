@@ -272,7 +272,11 @@ function webim_get_rooms($ids=null) {
 		$tagid = $value['tagid'];
 		$id = $tagid;
 		$tagname = $value['tagname'];
-		$pic = empty($value['pic']) ? $site_url . 'image/nologo.jpg' : $site_url . $value['pic'];
+		$pic = empty( $value['pic'] ) ? 'image/nologo.jpg' :  $value['pic'];
+		if ( strtolower( substr( $pic, 0, 4 ) ) != "http" ) {
+			$pic = $site_url . $pic ;
+		}
+
 		$rooms[$id]=(object)array('id'=>$id,
 			'nick'=> $tagname,
 			'pic_url'=>$pic,
@@ -291,22 +295,22 @@ function webim_get_notifications(){
 	$pmlist = array();
 	$member = $_SGLOBAL['member'];
 	if($member['notenum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/notice.gif" width="16" alt="" /><strong>'.$member["notenum"].'</strong> 个新通知'),"link"=>$site_url . "space.php?do=notice");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/notice.gif" width="16" alt="" /><strong>'.$member["notenum"].'</strong> 个新通知'),"link"=>$site_url . "space.php?do=notice");
 	}
 	if($member['pokenum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/poke.gif" width="16" alt="" /><strong>'.$member["pokenum"].'</strong> 个新招呼'),"link"=>$site_url . "cp.php?ac=poke");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/poke.gif" width="16" alt="" /><strong>'.$member["pokenum"].'</strong> 个新招呼'),"link"=>$site_url . "cp.php?ac=poke");
 	}
 	if($member['addfriendnum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/friend.gif" width="16" alt="" /><strong>'.$member["addfriendnum"].'</strong> 个好友请求'),"link"=>$site_url . "cp.php?ac=friend&op=request");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/friend.gif" width="16" alt="" /><strong>'.$member["addfriendnum"].'</strong> 个好友请求'),"link"=>$site_url . "cp.php?ac=friend&op=request");
 	}
 	if($member['mtaginvitenum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/mtag.gif" width="16" alt="" /><strong>'.$member["mtaginvitenum"].'</strong> 个群组邀请'),"link"=>$site_url . "cp.php?ac=mtag&op=mtaginvite");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/mtag.gif" width="16" alt="" /><strong>'.$member["mtaginvitenum"].'</strong> 个群组邀请'),"link"=>$site_url . "cp.php?ac=mtag&op=mtaginvite");
 	}
 	if($member['eventinvitenum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/event.gif" width="16" alt="" /><strong>'.$member["eventinvitenum"].'</strong> 个活动邀请'),"link"=>$site_url . "cp.php?ac=event&op=eventinvite");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/event.gif" width="16" alt="" /><strong>'.$member["eventinvitenum"].'</strong> 个活动邀请'),"link"=>$site_url . "cp.php?ac=event&op=eventinvite");
 	}
 	if($member['myinvitenum']){
-		$pmlist[]=array("text"=>('<img src=' . $site_url . '"image/icon/userapp.gif" width="16" alt="" /><strong>'.$member["myinvitenum"].'</strong> 个应用消息'),"link"=>$site_url . "space.php?do=notice&view=userapp");
+		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/userapp.gif" width="16" alt="" /><strong>'.$member["myinvitenum"].'</strong> 个应用消息'),"link"=>$site_url . "space.php?do=notice&view=userapp");
 	}
 
 	$pmstatus = uc_pm_checknew($user->uid, 0);
