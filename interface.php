@@ -87,7 +87,13 @@ function profile_url( $id ) {
 
 function webim_set_user() {
 	global $_SGLOBAL, $imuser, $im_is_admin;
-	$space = getspace($_SGLOBAL['supe_uid']);
+	//$space = getspace( $_SGLOBAL['supe_uid'] );
+	//http://github.com/webim/webim-for-uchome/issues/#issue/10
+	$query = $_SGLOBAL['db']->query( "SELECT uid, username, name 
+		FROM ".tname('space')." 
+		WHERE uid = ".$_SGLOBAL['supe_uid'] );
+	$space = $_SGLOBAL['db']->fetch_array( $query );
+
 	$imuser->uid = $space['uid'];
 	$imuser->id = $space['username'];
 	$imuser->nick = nick( $space );
