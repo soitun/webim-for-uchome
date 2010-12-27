@@ -290,7 +290,7 @@ function webim_get_rooms($ids=null) {
 }
 
 function webim_get_notifications(){
-	global $_SGLOBAL, $site_url;
+	global $_SGLOBAL, $site_url, $imuser;
 	include_once S_ROOT.'./uc_client/client.php';
 	$pmlist = array();
 	$member = $_SGLOBAL['member'];
@@ -313,9 +313,9 @@ function webim_get_notifications(){
 		$pmlist[]=array("text"=>('<img src="' . $site_url . 'image/icon/userapp.gif" width="16" alt="" /><strong>'.$member["myinvitenum"].'</strong> 个应用消息'),"link"=>$site_url . "space.php?do=notice&view=userapp");
 	}
 
-	$pmstatus = uc_pm_checknew($user->uid, 0);
+	$pmstatus = uc_pm_checknew($imuser->uid, 0);
 	$filter =  'newpm';
-	$ucdata = uc_pm_list($user->uid, 1, 20, "inbox", "newpm", 150);
+	$ucdata = uc_pm_list($imuser->uid, 1, 20, "inbox", "newpm", 150);
 
 	foreach($ucdata['data'] as $pm) {
 		if ($pm['msgfromid'] > 0) {
