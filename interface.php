@@ -71,7 +71,8 @@ $_IMC['dbcharset'] = UC_DBCHARSET;
  *
  */
 
-$site_url = dirname( webim_urlpath() ) . "/";
+#$site_url = dirname( webim_urlpath() ) . "/";
+$site_url = "";
 
 if(empty($_SGLOBAL['supe_uid'])) {
 	$im_is_login = false;
